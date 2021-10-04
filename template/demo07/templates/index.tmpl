@@ -1,0 +1,5 @@
+{{template "base.tmpl"}}
+
+{{define "content"}}
+    <div>Hello world!</div>
+{{end}}
