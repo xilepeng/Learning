@@ -323,6 +323,28 @@ mysql> SELECT E.ENAME,D.DNAME FROM EMP E JOIN DEPT D ON E.DEPTNO = D.DEPTNO;
 | MILLER | ACCOUNTING |
 +--------+------------+
 14 rows in set (0.02 sec)
+
+mysql> SELECT E.ENAME,D.DNAME FROM EMP E INNER JOIN DEPT D ON E.DEPTNO =
+D.DEPTNO;
++--------+------------+
+| ENAME  | DNAME      |
++--------+------------+
+| SMITH  | RESEARCH   |
+| ALLEN  | SALES      |
+| WARD   | SALES      |
+| JONES  | RESEARCH   |
+| MARTIN | SALES      |
+| BLAKE  | SALES      |
+| CLARK  | ACCOUNTING |
+| SCOTT  | RESEARCH   |
+| KING   | ACCOUNTING |
+| TURNER | SALES      |
+| ADAMS  | RESEARCH   |
+| JAMES  | SALES      |
+| FORD   | RESEARCH   |
+| MILLER | ACCOUNTING |
++--------+------------+
+14 rows in set (0.00 sec)
 ```
 
 sql99优点：表连接的条件是独立的，连接之后，如果还需要进一步筛选，再往后继续添加where
@@ -341,3 +363,500 @@ sql99优点：表连接的条件是独立的，连接之后，如果还需要进
 			筛选条件
 ```
 
+
+
+- 内连接之非等值连接
+
+案例：找出每个员工的薪资等级，要求显示员工名、薪资、薪资等级？
+
+```SQL
+mysql> SELECT * FROM EMP;
++-------+--------+-----------+------+------------+---------+---------+--------+
+| EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL     | COMM    | DEPTNO |
++-------+--------+-----------+------+------------+---------+---------+--------+
+|  7369 | SMITH  | CLERK     | 7902 | 1980-12-17 |  800.00 |    NULL |     20 |
+|  7499 | ALLEN  | SALESMAN  | 7698 | 1981-02-20 | 1600.00 |  300.00 |     30 |
+|  7521 | WARD   | SALESMAN  | 7698 | 1981-02-22 | 1250.00 |  500.00 |     30 |
+|  7566 | JONES  | MANAGER   | 7839 | 1981-04-02 | 2975.00 |    NULL |     20 |
+|  7654 | MARTIN | SALESMAN  | 7698 | 1981-09-28 | 1250.00 | 1400.00 |     30 |
+|  7698 | BLAKE  | MANAGER   | 7839 | 1981-05-01 | 2850.00 |    NULL |     30 |
+|  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450.00 |    NULL |     10 |
+|  7788 | SCOTT  | ANALYST   | 7566 | 1987-04-19 | 3000.00 |    NULL |     20 |
+|  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000.00 |    NULL |     10 |
+|  7844 | TURNER | SALESMAN  | 7698 | 1981-09-08 | 1500.00 |    0.00 |     30 |
+|  7876 | ADAMS  | CLERK     | 7788 | 1987-05-23 | 1100.00 |    NULL |     20 |
+|  7900 | JAMES  | CLERK     | 7698 | 1981-12-03 |  950.00 |    NULL |     30 |
+|  7902 | FORD   | ANALYST   | 7566 | 1981-12-03 | 3000.00 |    NULL |     20 |
+|  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300.00 |    NULL |     10 |
++-------+--------+-----------+------+------------+---------+---------+--------+
+14 rows in set (0.00 sec)
+
+mysql> SELECT * FROM SALGRADE;
++-------+-------+-------+
+| GRADE | LOSAL | HISAL |
++-------+-------+-------+
+|     1 |   700 |  1200 |
+|     2 |  1201 |  1400 |
+|     3 |  1401 |  2000 |
+|     4 |  2001 |  3000 |
+|     5 |  3001 |  9999 |
++-------+-------+-------+
+5 rows in set (0.02 sec)
+```
+
+
+```SQL
+mysql> SELECT E.ENAME,E.SAL,S.GRADE FROM EMP E INNER JOIN SALGRADE S ON E.SAL BETWEEN S.LOSAL AND S.HISAL;
++--------+---------+-------+
+| ENAME  | SAL     | GRADE |
++--------+---------+-------+
+| SMITH  |  800.00 |     1 |
+| ALLEN  | 1600.00 |     3 |
+| WARD   | 1250.00 |     2 |
+| JONES  | 2975.00 |     4 |
+| MARTIN | 1250.00 |     2 |
+| BLAKE  | 2850.00 |     4 |
+| CLARK  | 2450.00 |     4 |
+| SCOTT  | 3000.00 |     4 |
+| KING   | 5000.00 |     5 |
+| TURNER | 1500.00 |     3 |
+| ADAMS  | 1100.00 |     1 |
+| JAMES  |  950.00 |     1 |
+| FORD   | 3000.00 |     4 |
+| MILLER | 1300.00 |     2 |
++--------+---------+-------+
+14 rows in set (0.00 sec)
+
+
+SELECT
+	E.ENAME,
+	E.SAL,
+	S.GRADE 
+FROM
+	EMP E
+	INNER JOIN SALGRADE S ON E.SAL BETWEEN S.LOSAL 
+	AND S.HISAL;
++--------+---------+-------+
+| ENAME  | SAL     | GRADE |
++--------+---------+-------+
+| SMITH  |  800.00 |     1 |
+| ALLEN  | 1600.00 |     3 |
+| WARD   | 1250.00 |     2 |
+| JONES  | 2975.00 |     4 |
+| MARTIN | 1250.00 |     2 |
+| BLAKE  | 2850.00 |     4 |
+| CLARK  | 2450.00 |     4 |
+| SCOTT  | 3000.00 |     4 |
+| KING   | 5000.00 |     5 |
+| TURNER | 1500.00 |     3 |
+| ADAMS  | 1100.00 |     1 |
+| JAMES  |  950.00 |     1 |
+| FORD   | 3000.00 |     4 |
+| MILLER | 1300.00 |     2 |
++--------+---------+-------+
+14 rows in set (0.00 sec)
+```
+
+- 内连接之自连接
+案例：查询员工的上级领导，要求显示员工名和对应的领导名？
+
+技巧：一张表看成两张表。
+
+emp a 员工表
+```SQL
++-------+--------+------+
+| EMPNO | ENAME  | MGR  |
++-------+--------+------+
+|  7369 | SMITH  | 7902 |
+|  7499 | ALLEN  | 7698 |
+|  7521 | WARD   | 7698 |
+|  7566 | JONES  | 7839 |
+|  7654 | MARTIN | 7698 |
+|  7698 | BLAKE  | 7839 |
+|  7782 | CLARK  | 7839 |
+|  7788 | SCOTT  | 7566 |
+|  7839 | KING   | NULL |
+|  7844 | TURNER | 7698 |
+|  7876 | ADAMS  | 7788 |
+|  7900 | JAMES  | 7698 |
+|  7902 | FORD   | 7566 |
+|  7934 | MILLER | 7782 |
++-------+--------+------+
+```
+
+EMP B 领导表
+```SQL
++-------+--------+------+
+| EMPNO | ENAME  | MGR  |
++-------+--------+------+
+|  7369 | SMITH  | 7902 |
+|  7499 | ALLEN  | 7698 |
+|  7521 | WARD   | 7698 |
+|  7566 | JONES  | 7839 |
+|  7654 | MARTIN | 7698 |
+|  7698 | BLAKE  | 7839 |
+|  7782 | CLARK  | 7839 |
+|  7788 | SCOTT  | 7566 |
+|  7839 | KING   | NULL |
+|  7844 | TURNER | 7698 |
+|  7876 | ADAMS  | 7788 |
+|  7900 | JAMES  | 7698 |
+|  7902 | FORD   | 7566 |
+|  7934 | MILLER | 7782 |
++-------+--------+------+
+```
+
+```SQL
+SELECT
+	A.ENAME AS '员工名',
+	B.ENAME AS '领导名' 
+FROM
+	EMP A
+	INNER JOIN EMP B ON A.EMPNO = B.MGR;
+
++-------+--------+
+| 员工名 | 领导名  |
++-------+--------+
+| FORD  | SMITH  |
+| BLAKE | ALLEN  |
+| BLAKE | WARD   |
+| KING  | JONES  |
+| BLAKE | MARTIN |
+| KING  | BLAKE  |
+| KING  | CLARK  |
+| JONES | SCOTT  |
+| BLAKE | TURNER |
+| SCOTT | ADAMS  |
+| BLAKE | JAMES  |
+| JONES | FORD   |
+| CLARK | MILLER |
++-------+--------+
+13 rows in set (0.01 sec)  
+```
+
+
+
+**外连接**
+
+
+```SQL
+mysql> SELECT * FROM EMP;
++-------+--------+-----------+------+------------+---------+---------+--------+
+| EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL     | COMM    | DEPTNO |
++-------+--------+-----------+------+------------+---------+---------+--------+
+|  7369 | SMITH  | CLERK     | 7902 | 1980-12-17 |  800.00 |    NULL |     20 |
+|  7499 | ALLEN  | SALESMAN  | 7698 | 1981-02-20 | 1600.00 |  300.00 |     30 |
+|  7521 | WARD   | SALESMAN  | 7698 | 1981-02-22 | 1250.00 |  500.00 |     30 |
+|  7566 | JONES  | MANAGER   | 7839 | 1981-04-02 | 2975.00 |    NULL |     20 |
+|  7654 | MARTIN | SALESMAN  | 7698 | 1981-09-28 | 1250.00 | 1400.00 |     30 |
+|  7698 | BLAKE  | MANAGER   | 7839 | 1981-05-01 | 2850.00 |    NULL |     30 |
+|  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450.00 |    NULL |     10 |
+|  7788 | SCOTT  | ANALYST   | 7566 | 1987-04-19 | 3000.00 |    NULL |     20 |
+|  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000.00 |    NULL |     10 |
+|  7844 | TURNER | SALESMAN  | 7698 | 1981-09-08 | 1500.00 |    0.00 |     30 |
+|  7876 | ADAMS  | CLERK     | 7788 | 1987-05-23 | 1100.00 |    NULL |     20 |
+|  7900 | JAMES  | CLERK     | 7698 | 1981-12-03 |  950.00 |    NULL |     30 |
+|  7902 | FORD   | ANALYST   | 7566 | 1981-12-03 | 3000.00 |    NULL |     20 |
+|  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300.00 |    NULL |     10 |
++-------+--------+-----------+------+------------+---------+---------+--------+
+14 rows in set (0.00 sec)
+
+mysql> SELECT * FROM DEPT;
++--------+------------+----------+
+| DEPTNO | DNAME      | LOC      |
++--------+------------+----------+
+|     10 | ACCOUNTING | NEW YORK |
+|     20 | RESEARCH   | DALLAS   |
+|     30 | SALES      | CHICAGO  |
+|     40 | OPERATIONS | BOSTON   |
++--------+------------+----------+
+4 rows in set (0.00 sec)
+```
+
+
+**内连接**
+内连接：（A和B连接，AB两张表没有主次关系。平等的。）
+
+内连接的特点：完成能够匹配上这个条件的数据查询出来。
+
+```SQL
+SELECT
+	E.ENAME,
+	D.DNAME 
+FROM
+	EMP E
+	INNER JOIN DEPT D ON E.DEPTNO = D.DEPTNO;
+
++--------+------------+
+| ENAME  | DNAME      |
++--------+------------+
+| SMITH  | RESEARCH   |
+| ALLEN  | SALES      |
+| WARD   | SALES      |
+| JONES  | RESEARCH   |
+| MARTIN | SALES      |
+| BLAKE  | SALES      |
+| CLARK  | ACCOUNTING |
+| SCOTT  | RESEARCH   |
+| KING   | ACCOUNTING |
+| TURNER | SALES      |
+| ADAMS  | RESEARCH   |
+| JAMES  | SALES      |
+| FORD   | RESEARCH   |
+| MILLER | ACCOUNTING |
++--------+------------+
+14 rows in set (0.01 sec)
+```
+
+
+**外连接（右外连接）**
+
+```SQL
+SELECT
+	E.ENAME,
+	D.DNAME 
+FROM
+	EMP E
+	RIGHT OUTER JOIN DEPT D ON E.DEPTNO = D.DEPTNO;
+
++--------+------------+
+| ENAME  | DNAME      |
++--------+------------+
+| MILLER | ACCOUNTING |
+| KING   | ACCOUNTING |
+| CLARK  | ACCOUNTING |
+| FORD   | RESEARCH   |
+| ADAMS  | RESEARCH   |
+| SCOTT  | RESEARCH   |
+| JONES  | RESEARCH   |
+| SMITH  | RESEARCH   |
+| JAMES  | SALES      |
+| TURNER | SALES      |
+| BLAKE  | SALES      |
+| MARTIN | SALES      |
+| WARD   | SALES      |
+| ALLEN  | SALES      |
+| NULL   | OPERATIONS |
++--------+------------+
+15 rows in set (0.00 sec)
+```
+
+**right代表什么：表示将join关键字右边的这张表看成主表，主要是为了将这张表的数据全部查询出来，捎带着关联查询左边的表。**在外连接当中，两张表连接，产生了主次关系。
+
+
+**外连接（左外连接）**
+
+```SQL
+SELECT
+	E.ENAME,
+	D.DNAME 
+FROM
+	DEPT D
+	LEFT OUTER JOIN EMP E ON E.DEPTNO = D.DEPTNO;
+
++--------+------------+
+| ENAME  | DNAME      |
++--------+------------+
+| MILLER | ACCOUNTING |
+| KING   | ACCOUNTING |
+| CLARK  | ACCOUNTING |
+| FORD   | RESEARCH   |
+| ADAMS  | RESEARCH   |
+| SCOTT  | RESEARCH   |
+| JONES  | RESEARCH   |
+| SMITH  | RESEARCH   |
+| JAMES  | SALES      |
+| TURNER | SALES      |
+| BLAKE  | SALES      |
+| MARTIN | SALES      |
+| WARD   | SALES      |
+| ALLEN  | SALES      |
+| NULL   | OPERATIONS |
++--------+------------+
+15 rows in set (0.00 sec)  
+```
+
+带有right的是右外连接，又叫做右连接。
+带有left的是左外连接，又叫做左连接。
+任何一个右连接都有左连接的写法。
+任何一个左连接都有右连接的写法。
+
+思考：外连接的查询结果条数一定是 >= 内连接的查询结果条数？
+
+	**正确。**
+
+```SQL
+SELECT
+	A.ENAME AS '员工名',
+	B.ENAME AS '领导名'
+FROM
+	EMP A
+	LEFT JOIN EMP B ON A.MGR = B.EMPNO;
+
++--------+-------+
+| 员工名  | 领导名 |
++--------+-------+
+| SMITH  | FORD  |
+| ALLEN  | BLAKE |
+| WARD   | BLAKE |
+| JONES  | KING  |
+| MARTIN | BLAKE |
+| BLAKE  | KING  |
+| CLARK  | KING  |
+| SCOTT  | JONES |
+| KING   | NULL  |
+| TURNER | BLAKE |
+| ADAMS  | SCOTT |
+| JAMES  | BLAKE |
+| FORD   | JONES |
+| MILLER | CLARK |
++--------+-------+
+14 rows in set (0.00 sec)
+```
+
+
+
+**三张表，四张表怎么连接？**
+```SQL
+	语法：
+		select 
+			...
+		from
+			a
+		join
+			b
+		on
+			a和b的连接条件
+		join
+			c
+		on
+			a和c的连接条件
+		right join
+			d
+		on
+			a和d的连接条件
+```	
+一条SQL中内连接和外连接可以混合。都可以出现！
+
+**案例：找出每个员工的部门名称以及工资等级，**
+	要求显示员工名、部门名、薪资、薪资等级？
+
+```SQL
+SELECT
+	E.ENAME,
+	D.DNAME,
+	E.SAL,
+	S.GRADE 
+FROM
+	EMP E
+	JOIN DEPT D ON E.DEPTNO = D.DEPTNO
+	JOIN SALGRADE S ON E.SAL BETWEEN S.LOSAL 
+	AND S.HISAL;
+
+
++--------+------------+---------+-------+
+| ENAME  | DNAME      | SAL     | GRADE |
++--------+------------+---------+-------+
+| SMITH  | RESEARCH   |  800.00 |     1 |
+| ALLEN  | SALES      | 1600.00 |     3 |
+| WARD   | SALES      | 1250.00 |     2 |
+| JONES  | RESEARCH   | 2975.00 |     4 |
+| MARTIN | SALES      | 1250.00 |     2 |
+| BLAKE  | SALES      | 2850.00 |     4 |
+| CLARK  | ACCOUNTING | 2450.00 |     4 |
+| SCOTT  | RESEARCH   | 3000.00 |     4 |
+| KING   | ACCOUNTING | 5000.00 |     5 |
+| TURNER | SALES      | 1500.00 |     3 |
+| ADAMS  | RESEARCH   | 1100.00 |     1 |
+| JAMES  | SALES      |  950.00 |     1 |
+| FORD   | RESEARCH   | 3000.00 |     4 |
+| MILLER | ACCOUNTING | 1300.00 |     2 |
++--------+------------+---------+-------+
+14 rows in set (0.01 sec)
+```
+
+
+```SQL
+mysql> SELECT * FROM EMP;
++-------+--------+-----------+------+------------+---------+---------+--------+
+| EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL     | COMM    | DEPTNO |
++-------+--------+-----------+------+------------+---------+---------+--------+
+|  7369 | SMITH  | CLERK     | 7902 | 1980-12-17 |  800.00 |    NULL |     20 |
+|  7499 | ALLEN  | SALESMAN  | 7698 | 1981-02-20 | 1600.00 |  300.00 |     30 |
+|  7521 | WARD   | SALESMAN  | 7698 | 1981-02-22 | 1250.00 |  500.00 |     30 |
+|  7566 | JONES  | MANAGER   | 7839 | 1981-04-02 | 2975.00 |    NULL |     20 |
+|  7654 | MARTIN | SALESMAN  | 7698 | 1981-09-28 | 1250.00 | 1400.00 |     30 |
+|  7698 | BLAKE  | MANAGER   | 7839 | 1981-05-01 | 2850.00 |    NULL |     30 |
+|  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450.00 |    NULL |     10 |
+|  7788 | SCOTT  | ANALYST   | 7566 | 1987-04-19 | 3000.00 |    NULL |     20 |
+|  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000.00 |    NULL |     10 |
+|  7844 | TURNER | SALESMAN  | 7698 | 1981-09-08 | 1500.00 |    0.00 |     30 |
+|  7876 | ADAMS  | CLERK     | 7788 | 1987-05-23 | 1100.00 |    NULL |     20 |
+|  7900 | JAMES  | CLERK     | 7698 | 1981-12-03 |  950.00 |    NULL |     30 |
+|  7902 | FORD   | ANALYST   | 7566 | 1981-12-03 | 3000.00 |    NULL |     20 |
+|  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300.00 |    NULL |     10 |
++-------+--------+-----------+------+------------+---------+---------+--------+
+14 rows in set (0.00 sec)
+
+mysql> SELECT * FROM DEPT;
++--------+------------+----------+
+| DEPTNO | DNAME      | LOC      |
++--------+------------+----------+
+|     10 | ACCOUNTING | NEW YORK |
+|     20 | RESEARCH   | DALLAS   |
+|     30 | SALES      | CHICAGO  |
+|     40 | OPERATIONS | BOSTON   |
++--------+------------+----------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM SALGRADE;
++-------+-------+-------+
+| GRADE | LOSAL | HISAL |
++-------+-------+-------+
+|     1 |   700 |  1200 |
+|     2 |  1201 |  1400 |
+|     3 |  1401 |  2000 |
+|     4 |  2001 |  3000 |
+|     5 |  3001 |  9999 |
++-------+-------+-------+
+5 rows in set (0.01 sec)
+```
+
+
+**案例：找出每个员工的部门名称以及工资等级，还有上级领导，
+	要求显示员工名、领导名、部门名、薪资、薪资等级？**
+
+```SQL
+SELECT
+	E.ENAME,
+	L.ENAME AS 'LEADER',
+	D.DNAME,
+	E.SAL,
+	S.GRADE 
+FROM
+	EMP E
+	JOIN DEPT D ON E.DEPTNO = D.DEPTNO
+	JOIN SALGRADE S ON E.SAL BETWEEN S.LOSAL 
+	AND S.HISAL
+	LEFT JOIN EMP L ON E.MGR = L.EMPNO;
+
++--------+--------+------------+---------+-------+
+| ENAME  | LEADER | DNAME      | SAL     | GRADE |
++--------+--------+------------+---------+-------+
+| SMITH  | FORD   | RESEARCH   |  800.00 |     1 |
+| ALLEN  | BLAKE  | SALES      | 1600.00 |     3 |
+| WARD   | BLAKE  | SALES      | 1250.00 |     2 |
+| JONES  | KING   | RESEARCH   | 2975.00 |     4 |
+| MARTIN | BLAKE  | SALES      | 1250.00 |     2 |
+| BLAKE  | KING   | SALES      | 2850.00 |     4 |
+| CLARK  | KING   | ACCOUNTING | 2450.00 |     4 |
+| SCOTT  | JONES  | RESEARCH   | 3000.00 |     4 |
+| KING   | NULL   | ACCOUNTING | 5000.00 |     5 |
+| TURNER | BLAKE  | SALES      | 1500.00 |     3 |
+| ADAMS  | SCOTT  | RESEARCH   | 1100.00 |     1 |
+| JAMES  | BLAKE  | SALES      |  950.00 |     1 |
+| FORD   | JONES  | RESEARCH   | 3000.00 |     4 |
+| MILLER | CLARK  | ACCOUNTING | 1300.00 |     2 |
++--------+--------+------------+---------+-------+
+14 rows in set (0.00 sec)
+```
