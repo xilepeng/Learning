@@ -6,6 +6,14 @@
 1. [分组函数（多行处理函数）](#分组函数多行处理函数)
 1. [✅ 分组查询 （非常重要）](#-分组查询-非常重要)
 
+
+``` sql
+docker exec -it mysql bash
+
+mysql -uroot -p123456
+```
+
+
 什么是数据库？什么是数据库管理系统？什么是SQL？他们之间的关系是什么？
 
 	数据库：
@@ -74,11 +82,7 @@
 				例如：授权grant、撤销权限revoke....
 
 
-``` sql
-docker exec -it mysql bash
 
-mysql -uroot -p123456
-```
 
 ```SQL
 x@n  docker exec -it mysql bash
