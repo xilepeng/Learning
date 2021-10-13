@@ -370,4 +370,229 @@ mysql> SELECT * FROM DEPT_BAK;
 			这种隔离级别表示事务排队，不能并发！
 			synchronized，线程同步（事务同步）
 			每一次读取到的数据都是最真实的，并且效率是最低的。
-    
+
+
+**9.8、验证各种隔离级别**
+
+
+
+```sql
+**mysql默认的隔离级别**
+
+mysql> SELECT @@global.transaction_isolation;
++--------------------------------+
+| @@global.transaction_isolation |
++--------------------------------+
+| REPEATABLE-READ                |
++--------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT @@transaction_isolation;
++-------------------------+
+| @@transaction_isolation |
++-------------------------+
+| REPEATABLE-READ         |
++-------------------------+
+1 row in set (0.00 sec)
+```
+
+被测试的表t_user
+
+
+
+
+
+
+**验证：read uncommited**
+
+------
+
+```sql
+mysql> set global transaction isolation level read uncommitted;
+Query OK, 0 rows affected (0.00 sec)
+```
+
+**事务A**
+
+```sql
+mysql> SELECT @@global.transaction_isolation;
++--------------------------------+
+| @@global.transaction_isolation |
++--------------------------------+
+| READ-UNCOMMITTED               |
++--------------------------------+
+1 row in set (0.00 sec)
+
+mysql> use X;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from t_user;
+Empty set (0.00 sec)
+
+mysql> select * from t_user;
++------+
+| name |
++------+
+| mojo |
++------+
+1 row in set (0.00 sec)
+
+
+mysql> select * from t_user;
+Empty set (0.00 sec)
+```
+
+**事务B**
+```sql
+mysql> use X;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> SELECT @@global.transaction_isolation;
++--------------------------------+
+| @@global.transaction_isolation |
++--------------------------------+
+| READ-UNCOMMITTED               |
++--------------------------------+
+1 row in set (0.00 sec)
+
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into t_user values ('mojo');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.01 sec)
+```
+
+
+------
+
+
+
+**验证：read commited**
+
+------
+**事务A**
+
+```sql
+mysql> use X;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from t_user;
+Empty set (0.00 sec)
+
+mysql> select * from t_user;
+Empty set (0.00 sec)
+
+mysql> select * from t_user;
++------+
+| name |
++------+
+| mojo |
++------+
+1 row in set (0.00 sec)
+```
+
+
+**事务B**
+```sql
+mysql> use X;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> start transaction;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> insert into t_user values ('mojo');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.01 sec)
+```
+------
+
+
+**验证：repeatable read**
+
+------
+**事务A**
+
+
+```sql
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from t_user;
++------+
+| name |
++------+
+| mojo |
++------+
+1 row in set (0.00 sec)
+
+// commit 后依然读不到,读到的是幻像
+
+mysql> select * from t_user;
++------+
+| name |
++------+
+| mojo |
++------+
+1 row in set (0.00 sec)
+```
+
+**事务B**
+```sql
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into t_user values ('x'),('mojoman');
+Query OK, 2 rows affected (0.00 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select * from t_user;
++---------+
+| name    |
++---------+
+| mojo    |
+| x       |
+| mojoman |
++---------+
+3 rows in set (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.01 sec)
+```
+
+---
+
+
+
+
+**验证：serializable**
+mysql> set global transaction isolation level serializable;
+```sql
+事务A												事务B
+--------------------------------------------------------------------------------
+use X;
+													use X;
+start transaction;
+													start transaction;
+select * from t_user;
+insert into t_user values('abc');
+													select * from t_user;
+```
