@@ -7,10 +7,70 @@
 1. [✅ 分组查询 （非常重要）](#-分组查询-非常重要)
 
 
+
+
+```sql
+➜  ~ docker pull mysql:latest
+
+latest: Pulling from library/mysql
+b380bbd43752: Pull complete
+f23cbf2ecc5d: Pull complete
+30cfc6c29c0a: Pull complete
+b38609286cbe: Pull complete
+8211d9e66cd6: Pull complete
+2313f9eeca4a: Pull complete
+7eb487d00da0: Pull complete
+4d7421c8152e: Pull complete
+77f3d8811a28: Pull complete
+cce755338cba: Pull complete
+69b753046b9f: Pull complete
+b2e64b0ab53c: Pull complete
+Digest: sha256:6d7d4524463fe6e2b893ffc2b89543c81dec7ef82fb2020a1b27606666464d87
+Status: Downloaded newer image for mysql:latest
+docker.io/library/mysql:latest
+
+➜  ~ docker images
+
+REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
+mysql        latest    ecac195d15af   17 hours ago   516MB
+
+➜  ~ docker run -itd --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 mysql
+073ed0c2fc09e05e78647eacd32d4a865549c0cac6230a94e3efb437d120c3cb
+
+➜  ~ docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED              STATUS              PORTS                               NAMES
+073ed0c2fc09   mysql     "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:3306->3306/tcp, 33060/tcp   mysql
+
+
+
+➜  ~ docker exec -it mysql bash
+root@073ed0c2fc09:/# mysql -uroot -p123456
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.27 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2021, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+
+
+
+
+
 ``` sql
 docker exec -it mysql bash
 
 mysql -uroot -p123456
+
+
 ```
 
 
