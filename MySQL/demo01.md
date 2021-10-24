@@ -43,6 +43,7 @@ CONTAINER ID   IMAGE     COMMAND                  CREATED              STATUS   
 
 
 
+
 ➜  ~ docker exec -it mysql bash
 root@073ed0c2fc09:/# mysql -uroot -p123456
 mysql: [Warning] Using a password on the command line interface can be insecure.

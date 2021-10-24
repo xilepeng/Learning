@@ -1,0 +1,7 @@
+FROM ubuntu
+
+VOLUME ["volume01","volume02"]
+
+CMD echo "end ..."
+CMD /bin/bash
+
