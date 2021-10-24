@@ -1,69 +1,5 @@
 
 
-```go
-Linux电脑 安装脚本：
-
-/bin/bash -c "$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)"
-
-rm Homebrew.sh ; wget https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh ; bash Homebrew.sh
-
-
-Linux电脑 卸载脚本：
-
-rm HomebrewUninstall.sh ; wget https://gitee.com/cunkai/HomebrewCN/raw/master/HomebrewUninstall.sh ; bash HomebrewUninstall.sh
-
-
-
-
-终端输入以下几行命令设置环境变量:
-
-function brew() {
->     PATH="/home/linuxbrew/.linuxbrew/bin:$PATH" /home/linuxbrew/.linuxbrew/bin/brew "$@"
-> }
-
-将Homebrew加入PATH
-
-
-test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
-test -d /home/linuxbrew/.linuxbrew && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
-test -r ~/.bash_profile && echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.bash_profile
-echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile
-
-
-对于zsh用户: 还需
-
-test -r ~/.zsh_profile && echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.zsh_profile
-echo "export PATH=$HOME/bin:/usr/local/bin:$PATH" >> ~/.zshrc                                            
-echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.zshrc 
-source ~/.zshrc 
-
-
-
-Homebrew-bottles 镜像使用帮助
-注:该镜像是 Homebrew 二进制预编译包的镜像。本镜像站同时提供 Homebrew 的 formula 索引的镜像（即 brew update 时所更新内容），请参考 Homebrew 镜像使用帮助。
-
-长期替换
-如果你使用 bash：
-
-echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.bash_profile
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
-如果你使用 zsh：
-
-echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"' >> ~/.zprofile
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
-
-
-
-# 对于 bash 用户
-echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"' >> ~/.bash_profile
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
-
-# 对于 zsh 用户
-echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"' >> ~/.zshrc
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
-
-```
-
 
 ```go
 
@@ -1229,6 +1165,7 @@ drwxr-xr-x   2 root root 4096 Apr 15  2020 home
 **镜像发布**
 
 ```dockerfile
+ubuntu@x:~/dockerfile$ docker login -u x
 
 ubuntu@x:~$ docker login
 Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
@@ -1279,3 +1216,107 @@ latest: digest: sha256:dc71bd31b77150560a90d0b7faaaecc9b37977df22f9c90ecbfe838e4
 
 ```
 
+
+
+
+**实践 gin**
+```dockerfile
+ubuntu@x:~/go-demo$ go env -w GO111MODULE=on
+ubuntu@x:~/go-demo$ go env -w GOPROXY=https://goproxy.io,direct
+
+ubuntu@x:~/go-demo$ go mod init go-demo
+go: creating new go.mod: module go-demo
+go: to add module requirements and sums:
+	go mod tidy
+ubuntu@x:~/go-demo$ ls
+Dockerfile  go.mod  main.go
+ubuntu@x:~/go-demo$ go mod tidy
+
+
+ubuntu@x:~/go-demo$ ls
+Dockerfile  go.mod  go.sum  main.go
+ubuntu@x:~/go-demo$ cat main.go
+package main
+
+import "github.com/gin-gonic/gin"
+
+func main() {
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
+}
+
+
+ubuntu@x:~/go-demo$ cat Dockerfile
+FROM golang:1.17.2-alpine AS builder
+MAINTAINER x<lepengxi@gmail.com>
+# 编译工作目录
+WORKDIR /app
+# 拷贝本地所有文件到编译工作目录
+COPY . .
+
+# RUN go get -u github.com/gin-gonic/gin
+ENV GOPROXY https://goproxy.cn
+
+# 编译go文件,设置不调用Cgo
+RUN CGO_ENABLED=0 GOOS=linux go build -o server
+
+FROM alpine:latest
+# 二进制文件存放目录
+WORKDIR /app
+# builder别称镜像目录生成文件放入工作目录
+COPY --from=builder /app/server /app
+# 打开8080端口
+EXPOSE 8080
+# 从工作目录运行server二进制可执行文件
+ENTRYPOINT [ "/app/server" ]
+
+
+
+ubuntu@x:~/go-demo$ docker build -t xilepeng/gin-ping .
+
+Successfully built 0d83808031c5
+Successfully tagged xilepeng/gin-ping:latest
+
+ubuntu@x:~/go-demo$ docker images
+REPOSITORY          TAG             IMAGE ID       CREATED             SIZE
+xilepeng/gin-ping   latest          0d83808031c5   52 seconds ago      14.7MB
+
+ubuntu@x:~/go-demo$ docker run -d xilepeng/gin-ping
+f073baba719c8a06d41246f2efc6c581eb202494d5974c8ea5b13ae391e3d01e
+ubuntu@x:~/go-demo$ docker ps
+CONTAINER ID   IMAGE               COMMAND         CREATED         STATUS         PORTS      NAMES
+f073baba719c   xilepeng/gin-ping   "/app/server"   5 seconds ago   Up 4 seconds   8080/tcp   trusting_mclaren
+ubuntu@x:~/go-demo$ docker inspect f073baba719c
+
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "506ee3a90afaac210fde2a8da6c29d76aee7e267d10a87e215fc78e78ecc66bd",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {
+                "8080/tcp": null
+            },
+            "SandboxKey": "/var/run/docker/netns/506ee3a90afa",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "d6a958b9fa5dcb9a333862768ae038faf6f6f2eb45937dd4caac7933104a0da0",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.2",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "02:42:ac:11:00:02",
+
+
+ubuntu@x:~/go-demo$ curl http://172.17.0.2:8080/ping
+{"message":"pong"}
+
+
+```
