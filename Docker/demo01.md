@@ -1,7 +1,7 @@
 
 
 
-```go
+```bash
 
 一、Multipass介绍
         Multipass是一种简单的虚拟机工具。它不仅使启用虚拟机变得快速简易，还使管理那些虚拟机变得异常简单，因此可以立即开始针对云、边缘、物联网或任何一种类型的技术进行开发。实际上，Multipass包含一个系统任务栏工具，你只要点击一下就可以启动和停止虚拟机，甚至进入虚拟机的外壳。支持Linux、Windows系统等。
@@ -86,6 +86,43 @@ multipass version
  
 16.帮助
 multipass help
+
+
+17.主机和容器数据交互
+
+第一种 使用挂载数据卷的方式: multipass mount $HOME 容器名
+
+# 或者指定容器目录
+multipass mount $HOME 容器名:目录名
+
+如果要卸载数据卷: multipass umount 容器名
+
+第二种 transfer 进行文件复制传输
+
+multipass transfer 主机文件 容器名:容器目录
+
+➜  ~ multipass mount /Users/x/Shared x:/home/ubuntu/Shared
+
+➜  ~ multipass mount /mnt ubuntu:/mnt
+Source path "/mnt" does not exist
+➜  ~ multipass mount /mnt ubuntu:/mnt
+Source path "/mnt" does not exist
+➜  ~ multipass info x
+Name:           x
+State:          Running
+IPv4:           192.168.105.4
+                172.17.0.1
+                192.168.0.1
+                172.38.0.1
+Release:        Ubuntu 20.04.3 LTS
+Image hash:     efd98e5a2269 (Ubuntu 20.04 LTS)
+Load:           0.24 0.17 0.17
+Disk usage:     6.6G out of 38.6G
+Memory usage:   361.0M out of 3.8G
+Mounts:         /Users/x/Shared => /home/ubuntu/Shared
+                    UID map: 501:default
+                    GID map: 20:default
+
 ```
 
 
@@ -1320,3 +1357,551 @@ ubuntu@x:~/go-demo$ curl http://172.17.0.2:8080/ping
 
 
 ```
+
+
+
+
+
+```dockerfile
+
+删除所有容器
+ubuntu@x:~$ docker rm -f $(docker ps -aq)
+
+
+删除所有镜像
+
+ubuntu@x:~$ docker rmi -f $(docker images -a)
+
+```
+
+**Docker 网络**
+
+```shell
+ubuntu@x:~$ ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: enp0s2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 22:03:01:e1:1a:a5 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.105.4/24 brd 192.168.105.255 scope global dynamic enp0s2
+       valid_lft 65514sec preferred_lft 65514sec
+    inet6 fdaa:9e07:41a7:e34f:2003:1ff:fee1:1aa5/64 scope global dynamic mngtmpaddr noprefixroute
+       valid_lft 2591990sec preferred_lft 604790sec
+    inet6 fe80::2003:1ff:fee1:1aa5/64 scope link
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 02:42:64:36:10:43 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:64ff:fe36:1043/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
+**自定义网络**
+
+```shell
+ubuntu@x:~$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+18d7aa9c30f4   bridge    bridge    local
+9f67d7222dee   host      host      local
+23dd5a314f78   none      null      local
+```
+
+**网络模式：**
+
+- bridge: 桥接 docker 默认
+- host：和宿主机共享网络
+- none: 不配置网络
+- container: 容器内网络连通（用的少），局限很大
+
+```shell
+ubuntu@x:~$ docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynet
+f7fbb7667e3afcb9cfb7cbc2d72e1772872c94f3a626e8f8d44f2d8a974962a4
+ubuntu@x:~$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+18d7aa9c30f4   bridge    bridge    local
+9f67d7222dee   host      host      local
+f7fbb7667e3a   mynet     bridge    local
+```
+
+
+
+```shell
+ubuntu@x:~$ docker inspect mynet
+[
+    {
+        "Name": "mynet",
+        "Id": "f7fbb7667e3afcb9cfb7cbc2d72e1772872c94f3a626e8f8d44f2d8a974962a4",
+        "Created": "2021-10-25T12:43:42.411601753+08:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "192.168.0.0/16",
+                    "Gateway": "192.168.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+
+
+```shell
+ubuntu@x:~$ docker inspect mynet
+[
+    {
+        "Name": "mynet",
+        "Id": "f7fbb7667e3afcb9cfb7cbc2d72e1772872c94f3a626e8f8d44f2d8a974962a4",
+        "Created": "2021-10-25T12:43:42.411601753+08:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "192.168.0.0/16",
+                    "Gateway": "192.168.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "40c30f43fef30554c4f3bcb6448517cee224b18bd589ed2849fc068852f36ece": {
+                "Name": "ubuntu-01",
+                "EndpointID": "5b9db3c9d28421d447e3077357c265fbc6cc0467962073dd73d7e93833f47074",
+                "MacAddress": "02:42:c0:a8:00:02",
+                "IPv4Address": "192.168.0.2/16",
+                "IPv6Address": ""
+            },
+            "5d757ceecfaefb0acf520535f2a42a14a39ea5b1f473c2c9a09279fb6adb04a6": {
+                "Name": "ubuntu-02",
+                "EndpointID": "6e0682e52454bcf9cab3a3ac45c991b9f37267ab5458597e405cc7f26e6146dd",
+                "MacAddress": "02:42:c0:a8:00:03",
+                "IPv4Address": "192.168.0.3/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+
+
+```shell
+ubuntu@x:~$ docker run -itd --name ubuntu-01 --network mynet ubuntu /bin/bash
+40c30f43fef30554c4f3bcb6448517cee224b18bd589ed2849fc068852f36ece
+ubuntu@x:~$ docker run -itd --name ubuntu-02 --network mynet ubuntu /bin/bash
+5d757ceecfaefb0acf520535f2a42a14a39ea5b1f473c2c9a09279fb6adb04a6
+ubuntu@x:~$ docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS     NAMES
+5d757ceecfae   ubuntu    "/bin/bash"   20 seconds ago   Up 19 seconds             ubuntu-02
+40c30f43fef3   ubuntu    "/bin/bash"   29 seconds ago   Up 27 seconds             ubuntu-01
+
+ubuntu@x:~$ docker exec -it ubuntu-01 /bin/bash
+root@40c30f43fef3:/# apt-get update
+root@40c30f43fef3:/# apt install iputils-ping -y
+
+root@40c30f43fef3:/# ping 192.168.0.3
+PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+64 bytes from 192.168.0.3: icmp_seq=1 ttl=64 time=2.13 ms
+64 bytes from 192.168.0.3: icmp_seq=2 ttl=64 time=0.499 ms
+
+root@40c30f43fef3:/# ping ubuntu-02
+PING ubuntu-02 (192.168.0.3) 56(84) bytes of data.
+64 bytes from ubuntu-02.mynet (192.168.0.3): icmp_seq=1 ttl=64 time=0.170 ms
+64 bytes from ubuntu-02.mynet (192.168.0.3): icmp_seq=2 ttl=64 time=0.208 ms
+
+ubuntu@x:~$ docker exec -it ubuntu-01 ping 192.168.0.3
+PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+64 bytes from 192.168.0.3: icmp_seq=1 ttl=64 time=0.099 ms
+64 bytes from 192.168.0.3: icmp_seq=2 ttl=64 time=0.197 ms
+
+ubuntu@x:~$ docker exec -it ubuntu-01 ping ubuntu-02
+PING ubuntu-02 (192.168.0.3) 56(84) bytes of data.
+64 bytes from ubuntu-02.mynet (192.168.0.3): icmp_seq=1 ttl=64 time=0.097 ms
+64 bytes from ubuntu-02.mynet (192.168.0.3): icmp_seq=2 ttl=64 time=0.183 ms
+```
+
+**网络连通**
+
+```shell
+ubuntu@x:~$ docker network connect --help
+
+Usage:  docker network connect [OPTIONS] NETWORK CONTAINER
+
+ubuntu@x:~$ docker run -itd --name ubuntu-no ubuntu /bin/bash
+ubuntu@x:~$ docker run -itd --name ubuntu ubuntu /bin/bash
+
+ubuntu@x:~$ docker network connect mynet ubuntu
+ubuntu@x:~$ docker network inspect mynet
+
+
+"Containers": {
+            "40c30f43fef30554c4f3bcb6448517cee224b18bd589ed2849fc068852f36ece": {
+                "Name": "ubuntu-01",
+                "EndpointID": "5b9db3c9d28421d447e3077357c265fbc6cc0467962073dd73d7e93833f47074",
+                "MacAddress": "02:42:c0:a8:00:02",
+                "IPv4Address": "192.168.0.2/16",
+                "IPv6Address": ""
+            },
+            "5d757ceecfaefb0acf520535f2a42a14a39ea5b1f473c2c9a09279fb6adb04a6": {
+                "Name": "ubuntu-02",
+                "EndpointID": "6e0682e52454bcf9cab3a3ac45c991b9f37267ab5458597e405cc7f26e6146dd",
+                "MacAddress": "02:42:c0:a8:00:03",
+                "IPv4Address": "192.168.0.3/16",
+                "IPv6Address": ""
+            },
+            "7cc44de2433366275e3a4e7ddf584aac6f5c3a8fac411de49a1ee495525bdc94": {
+                "Name": "ubuntu",
+                "EndpointID": "49a8e7b224758f0a3d5b152f50285e156964f242f613dbcc3de0029969221511",
+                "MacAddress": "02:42:c0:a8:00:04",
+                "IPv4Address": "192.168.0.4/16",
+                "IPv6Address": ""
+            }
+        },
+        
+
+```
+
+**连通之后，就是将 ubuntu 加入 mynet 网络下**
+
+```shell
+ubuntu@x:~$ docker exec -it ubuntu-01 ping ubuntu
+PING ubuntu (192.168.0.4) 56(84) bytes of data.
+64 bytes from ubuntu.mynet (192.168.0.4): icmp_seq=1 ttl=64 time=1.74 ms
+64 bytes from ubuntu.mynet (192.168.0.4): icmp_seq=2 ttl=64 time=0.221 ms
+
+ubuntu@x:~$ docker exec -it ubuntu-01 ping ubuntu-no
+ping: ubuntu-no: Temporary failure in name resolution
+```
+
+
+
+**redis 集群**
+
+
+
+```shell
+ubuntu@x:~$ docker network create redis --subnet 172.38.0.0/16
+67839a9ee88e776b4b921b981bff45791bed321a3d271d6bdce1ba0ac4870477
+ubuntu@x:~$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+18d7aa9c30f4   bridge    bridge    local
+9f67d7222dee   host      host      local
+f7fbb7667e3a   mynet     bridge    local
+23dd5a314f78   none      null      local
+67839a9ee88e   redis     bridge    local
+ubuntu@x:~$ docker network inspect redis
+[
+    {
+        "Name": "redis",
+        "Id": "67839a9ee88e776b4b921b981bff45791bed321a3d271d6bdce1ba0ac4870477",
+        "Created": "2021-10-25T16:53:18.712494047+08:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.38.0.0/16"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+
+
+```
+
+
+
+```shell
+for port in $(seq 1 6); \
+do \
+mkdir -p /mydata/redis/node-${port}/conf
+touch /mydata/redis/node-${port}/conf/redis.conf
+cat << EOF >/mydata/redis/node-${port}/conf/redis.conf
+port 6379
+bind 0.0.0.0
+cluster-enabled yes 
+cluster-config-file nodes.conf
+cluster-node-timeout 5000
+cluster-announce-ip 172.38.0.1${port}
+cluster-announce-port 6379
+cluster-announce-bus-port 16379
+appendonly yes
+EOF
+done
+
+```
+
+
+
+```shell
+ubuntu@x:~$ sudo passwd root
+New password:
+Retype new password:
+passwd: password updated successfully
+ubuntu@x:~$ su
+Password:
+root@x:/home/ubuntu# for port in $(seq 1 6); \
+> do \
+> mkdir -p /mydata/redis/node-${port}/conf
+> touch /mydata/redis/node-${port}/conf/redis.conf
+> cat << EOF >/mydata/redis/node-${port}/conf/redis.conf
+> port 6379
+> bind 0.0.0.0
+> cluster-enabled yes
+> cluster-config-file nodes.conf
+> cluster-node-timeout 5000
+> cluster-announce-ip 172.38.0.1${port}
+> cluster-announce-port 6379
+> cluster-announce-bus-port 16379
+> appendonly yes
+> EOF
+> done
+
+root@x:/mydata/redis/node-1/conf# cat redis.conf
+port 6379
+bind 0.0.0.0
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 5000
+cluster-announce-ip 172.38.0.11
+cluster-announce-port 6379
+cluster-announce-bus-port 16379
+appendonly yes
+
+root@x:~# sudo passwd -dl root
+```
+
+
+
+```shell
+sudo passwd root
+sudo passwd -dl root
+```
+
+
+
+```shell
+docker run -p 6371:6379 -p 16371:16379 --name redis-1 \
+-v /mydata/redis/node-1/data:/data \
+-v /mydata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.11 redis:latest redis-server /etc/redis/redis.conf
+
+
+docker run -p 6372:6379 -p 16372:16379 --name redis-2 \
+-v /mydata/redis/node-2/data:/data \
+-v /mydata/redis/node-2/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.12 redis:latest redis-server /etc/redis/redis.conf
+
+
+docker run -p 6373:6379 -p 16373:16379 --name redis-3 \
+-v /mydata/redis/node-3/data:/data \
+-v /mydata/redis/node-3/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.13 redis:latest redis-server /etc/redis/redis.conf
+
+
+docker run -p 6374:6379 -p 16374:16379 --name redis-4 \
+-v /mydata/redis/node-4/data:/data \
+-v /mydata/redis/node-4/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.14 redis:latest redis-server /etc/redis/redis.conf
+
+
+docker run -p 6375:6379 -p 16375:16379 --name redis-5 \
+-v /mydata/redis/node-5/data:/data \
+-v /mydata/redis/node-5/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.15 redis:latest redis-server /etc/redis/redis.conf
+
+
+docker run -p 6376:6379 -p 16376:16379 --name redis-6 \
+-v /mydata/redis/node-6/data:/data \
+-v /mydata/redis/node-6/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.16 redis:latest redis-server /etc/redis/redis.conf
+
+
+
+
+
+
+ubuntu@x:~$ docker run -p 6371:6379 -p 16371:16379 --name redis-1 \
+> -v /mydata/redis/node-1/data:/data \
+> -v /mydata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf \
+> -d --net redis --ip 172.38.0.11 redis:latest redis-server /etc/redis/redis.conf
+45ff6db22e8bb592a68db715295779e38ea4b2ccfef1e0902eb5be1258853483
+ubuntu@x:~$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS         PORTS                                                                                      NAMES
+45ff6db22e8b   redis:latest   "docker-entrypoint.s…"   12 seconds ago   Up 9 seconds   0.0.0.0:6371->6379/tcp, :::6371->6379/tcp, 0.0.0.0:16371->16379/tcp, :::16371->16379/tcp   redis-1
+
+...
+
+
+ubuntu@x:~$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS                                                                                      NAMES
+c95b5b3188ed   redis:latest   "docker-entrypoint.s…"   6 seconds ago        Up 4 seconds        0.0.0.0:6376->6379/tcp, :::6376->6379/tcp, 0.0.0.0:16376->16379/tcp, :::16376->16379/tcp   redis-6
+c9e43c0f9a61   redis:latest   "docker-entrypoint.s…"   39 seconds ago       Up 38 seconds       0.0.0.0:6375->6379/tcp, :::6375->6379/tcp, 0.0.0.0:16375->16379/tcp, :::16375->16379/tcp   redis-5
+fe26323bd9e7   redis:latest   "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:6374->6379/tcp, :::6374->6379/tcp, 0.0.0.0:16374->16379/tcp, :::16374->16379/tcp   redis-4
+1660039034fe   redis:latest   "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:6373->6379/tcp, :::6373->6379/tcp, 0.0.0.0:16373->16379/tcp, :::16373->16379/tcp   redis-3
+1bdd587793d6   redis:latest   "docker-entrypoint.s…"   2 minutes ago        Up 2 minutes        0.0.0.0:6372->6379/tcp, :::6372->6379/tcp, 0.0.0.0:16372->16379/tcp, :::16372->16379/tcp   redis-2
+45ff6db22e8b   redis:latest   "docker-entrypoint.s…"   6 minutes ago        Up 6 minutes        0.0.0.0:6371->6379/tcp, :::6371->6379/tcp, 0.0.0.0:16371->16379/tcp, :::16371->16379/tcp   redis-1
+
+
+
+ubuntu@x:~$ docker exec -it redis-1 /bin/bash
+root@45ff6db22e8b:/data# ls
+appendonly.aof	nodes.conf
+root@45ff6db22e8b:/data#
+
+
+root@45ff6db22e8b:/data# redis-cli --cluster create 172.38.0.11:6379 172.38.0.12:6379 172.38.0.13:6379 172.38.0.14:6379 172.38.0.15:6379 172.38.0.16:6379 --cluster-replicas 1
+>>> Performing hash slots allocation on 6 nodes...
+Master[0] -> Slots 0 - 5460
+Master[1] -> Slots 5461 - 10922
+Master[2] -> Slots 10923 - 16383
+Adding replica 172.38.0.15:6379 to 172.38.0.11:6379
+Adding replica 172.38.0.16:6379 to 172.38.0.12:6379
+Adding replica 172.38.0.14:6379 to 172.38.0.13:6379
+M: 6ef16d62c844287639af6fa558aa83db2a255d1b 172.38.0.11:6379
+   slots:[0-5460] (5461 slots) master
+M: 5a95e4469496ce73488dd41174d15efb3fb0df55 172.38.0.12:6379
+   slots:[5461-10922] (5462 slots) master
+M: 62e4718bdaac5f559f37a168d0e3ce05585591bc 172.38.0.13:6379
+   slots:[10923-16383] (5461 slots) master
+S: 78c2893501257bd70c1adadea57ddc4c9c2e3388 172.38.0.14:6379
+   replicates 62e4718bdaac5f559f37a168d0e3ce05585591bc
+S: 62e1d1303c232979fedda8ae779eae774a214daf 172.38.0.15:6379
+   replicates 6ef16d62c844287639af6fa558aa83db2a255d1b
+S: 94055bd4d435f97e33f12496e63d9f5043de75c2 172.38.0.16:6379
+   replicates 5a95e4469496ce73488dd41174d15efb3fb0df55
+Can I set the above configuration? (type 'yes' to accept): yes
+>>> Nodes configuration updated
+>>> Assign a different config epoch to each node
+>>> Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+.
+>>> Performing Cluster Check (using node 172.38.0.11:6379)
+M: 6ef16d62c844287639af6fa558aa83db2a255d1b 172.38.0.11:6379
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+M: 5a95e4469496ce73488dd41174d15efb3fb0df55 172.38.0.12:6379
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+S: 94055bd4d435f97e33f12496e63d9f5043de75c2 172.38.0.16:6379
+   slots: (0 slots) slave
+   replicates 5a95e4469496ce73488dd41174d15efb3fb0df55
+S: 62e1d1303c232979fedda8ae779eae774a214daf 172.38.0.15:6379
+   slots: (0 slots) slave
+   replicates 6ef16d62c844287639af6fa558aa83db2a255d1b
+S: 78c2893501257bd70c1adadea57ddc4c9c2e3388 172.38.0.14:6379
+   slots: (0 slots) slave
+   replicates 62e4718bdaac5f559f37a168d0e3ce05585591bc
+M: 62e4718bdaac5f559f37a168d0e3ce05585591bc 172.38.0.13:6379
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+
+
+
+root@45ff6db22e8b:/data# redis-cli -c
+127.0.0.1:6379> cluster info
+
+cluster_state:ok
+cluster_slots_assigned:16384
+cluster_slots_ok:16384
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:3
+cluster_current_epoch:6
+cluster_my_epoch:1
+cluster_stats_messages_ping_sent:173
+cluster_stats_messages_pong_sent:176
+cluster_stats_messages_sent:349
+cluster_stats_messages_ping_received:171
+cluster_stats_messages_pong_received:173
+cluster_stats_messages_meet_received:5
+cluster_stats_messages_received:349
+
+
+127.0.0.1:6379> cluster nodes
+6ef16d62c844287639af6fa558aa83db2a255d1b 172.38.0.11:6379@16379 myself,master - 0 1635156827000 1 connected 0-5460
+5a95e4469496ce73488dd41174d15efb3fb0df55 172.38.0.12:6379@16379 master - 0 1635156828817 2 connected 5461-10922
+94055bd4d435f97e33f12496e63d9f5043de75c2 172.38.0.16:6379@16379 slave 5a95e4469496ce73488dd41174d15efb3fb0df55 0 1635156829247 2 connected
+62e1d1303c232979fedda8ae779eae774a214daf 172.38.0.15:6379@16379 slave 6ef16d62c844287639af6fa558aa83db2a255d1b 0 1635156828000 1 connected
+78c2893501257bd70c1adadea57ddc4c9c2e3388 172.38.0.14:6379@16379 slave 62e4718bdaac5f559f37a168d0e3ce05585591bc 0 1635156828505 3 connected
+62e4718bdaac5f559f37a168d0e3ce05585591bc 172.38.0.13:6379@16379 master - 0 1635156828000 3 connected 10923-16383
+
+172.38.0.15:6379> set k1 v1
+-> Redirected to slot [12706] located at 172.38.0.14:6379
+OK
+
+ubuntu@x:~$ docker stop redis-4
+
+172.38.0.14:6379> get k1
+Error: Server closed the connection
+172.38.0.14:6379> get k1
+Could not connect to Redis at 172.38.0.14:6379: No route to host
+(34.23s)
+not connected>
+
+127.0.0.1:6379> get k1
+-> Redirected to slot [12706] located at 172.38.0.13:6379
+"v1"
+
+172.38.0.13:6379> cluster nodes
+94055bd4d435f97e33f12496e63d9f5043de75c2 172.38.0.16:6379@16379 master - 0 1635159704000 8 connected 5461-10922
+5a95e4469496ce73488dd41174d15efb3fb0df55 172.38.0.12:6379@16379 slave 94055bd4d435f97e33f12496e63d9f5043de75c2 0 1635159704945 8 connected
+62e4718bdaac5f559f37a168d0e3ce05585591bc 172.38.0.13:6379@16379 myself,master - 0 1635159704000 10 connected 10923-16383
+78c2893501257bd70c1adadea57ddc4c9c2e3388 172.38.0.14:6379@16379 master,fail - 1635159512948 1635159510872 7 connected
+6ef16d62c844287639af6fa558aa83db2a255d1b 172.38.0.11:6379@16379 slave 62e1d1303c232979fedda8ae779eae774a214daf 0 1635159705377 9 connected
+62e1d1303c232979fedda8ae779eae774a214daf 172.38.0.15:6379@16379 master - 0 1635159705099 9 connected 0-5460
+```
+
+
+
