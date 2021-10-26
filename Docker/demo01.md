@@ -28,6 +28,7 @@ multipass find
 -c, --cpus: cpu核心数, 默认: 1
 -m, --mem: 内存大小, 默认: 1G
 -d, --disk: 硬盘大小, 默认: 5G
+
 multipass launch -n ubuntu-lts -c 4 -m 4G -d 40G
  
 3.进入虚拟机
@@ -123,22 +124,52 @@ Mounts:         /Users/x/Shared => /home/ubuntu/Shared
                     UID map: 501:default
                     GID map: 20:default
 
+18. multipass shell
+进入一个与宿主机隔离的 Linux 容器！
+multipass 会自动创建并运行一个名为 Primary 的容器（如果还没有创建或运行的话），这个容器也会自动挂载宿主机的 Home 目录，就是这么省心省力。
+
+➜  ~ multipass shell
+Launched: primary
+Mounted '/Users/x' into 'primary:Home'
+Welcome to Ubuntu 20.04.3 LTS (GNU/Linux 5.4.0-89-generic x86_64)
+
+➜  ~ multipass list
+Name                    State             IPv4             Image
+primary                 Running           192.168.105.2    Ubuntu 20.04 LTS
+x                       Running           192.168.105.4    Ubuntu 20.04 LTS
+
+➜  ~ ping 192.168.105.2
+PING 192.168.105.2 (192.168.105.2): 56 data bytes
+64 bytes from 192.168.105.2: icmp_seq=0 ttl=64 time=0.457 ms
+64 bytes from 192.168.105.2: icmp_seq=1 ttl=64 time=0.302 ms
+
+➜  ~ ping 192.168.105.4
+PING 192.168.105.4 (192.168.105.4): 56 data bytes
+64 bytes from 192.168.105.4: icmp_seq=0 ttl=64 time=41.990 ms
+64 bytes from 192.168.105.4: icmp_seq=1 ttl=64 time=0.866 ms
+
+multipass shell x
+
 ```
 
 
 
-`ubuntu@x:~$ /bin/bash -c "$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)"`
+
 
 **任何工作站的Ubuntu虚拟机**
 
 使用单个命令获取即时Ubuntu VM。多通可以启动和运行虚拟机，并像公共云一样配置它们。您的云原型在本地免费启动。
 
-![Multipass](https://multipass.run/)
-
+[Multipass](https://multipass.run/)
 
 **1. 在MacOS上安装 Multipass**
 
-![Download Multipass for MacOS](https://multipass.run/download/macos)
+[Download Multipass for MacOS](https://multipass.run/download/macos)
+
+```shell
+brew install multipass
+```
+
 
 
 **2. 如何启动LTS实例**
@@ -203,11 +234,19 @@ Launched: x
 -m, --mem: 内存大小, 默认: 1G
 -d, --disk: 硬盘大小, 默认: 5G
 
-
 # 如果需要修改配置文件
 
+```bash
+# 停用multipassd
+sudo launchctl unload /Library/LaunchDaemons/com.canonical.multipassd.plist
+# 修改配置文件
+sudo vi '/var/root/Library/Application Support/multipassd/multipassd-vm-instances.json'
+# 启动multipassd
+sudo launchctl load /Library/LaunchDaemons/com.canonical.multipassd.plist
+```
 
-`sudo vim /var/root/Library/Application\ Support/multipassd/multipassd-vm-instances.json`
+
+
 
 
 ```bash
@@ -219,50 +258,11 @@ ubuntu@x:~$
 ```
 
 
-**Ubuntu 安装 Docker**
-
-使用官方安装脚本自动安装
-
-`curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun`
-
-
-```shell
-ubuntu@x:~$ docker images
-Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/images/json": dial unix /var/run/docker.sock: connect: permission denied
-
-ubuntu@x:~$ sudo groupadd docker
-groupadd: group 'docker' already exists
-
-ubuntu@x:~$ sudo gpasswd -a ubuntu docker
-Adding user ubuntu to group docker
-
-ubuntu@x:~$ sudo service docker restart
-重启 iTerm2
-
-
-
-ubuntu@x:~$ sudo vim /etc/docker/daemon.json
-
-
-{ "registry-mirrors": [
-    "https://hkaofvr0.mirror.aliyuncs.com"
-  ]
- }
-
-ubuntu@x:~$ sudo systemctl daemon-reload
-ubuntu@x:~$ sudo systemctl restart docker
-ubuntu@x:~$ docker info
-
- Registry Mirrors:
-  https://hkaofvr0.mirror.aliyuncs.com/
-
-
-```
-
 
 
 
 **帮助命令**
+
 ```
 docker version
 
@@ -306,6 +306,95 @@ redis                            Redis is an open source key-value store that…
 NAME      DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
 redis     Redis is an open source key-value store that…   10055     [OK]
 ```
+
+
+
+**使用multipass搭建k8s多节点集群和Dashboard**
+
+```shell
+multipass launch -n master -c 2 -m 8G -d 40G
+multipass launch -n node1 -c 1 -m 4G -d 20G
+multipass launch -n node2 -c 1 -m 4G -d 20G
+
+
+➜  ~ multipass list
+Name                    State             IPv4             Image
+master                  Running           192.168.105.5    Ubuntu 20.04 LTS
+node1                   Running           192.168.105.6    Ubuntu 20.04 LTS
+node2                   Running           192.168.105.7    Ubuntu 20.04 LTS
+
+ubuntu@master:~$ sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+ubuntu@master:~$ sudo rm -f /etc/apt/sources.list
+ubuntu@master:~$ sudo vim /etc/apt/sources.list
+
+# ubuntu 20.04(focal) 配置如下
+deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+
+
+ubuntu@master:~$ sudo apt-get update
+ubuntu@master:~$ sudo apt-get upgrade -y
+```
+
+
+
+**Ubuntu 安装 Docker**
+
+```shell
+# 使用官方安装脚本自动安装
+ubuntu@master:~$ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+
+ubuntu@master:~$ docker images
+Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/images/json": dial unix /var/run/docker.sock: connect: permission denied
+ubuntu@master:~$ sudo groupadd docker
+groupadd: group 'docker' already exists
+ubuntu@master:~$ sudo gpasswd -a ubuntu docker
+Adding user ubuntu to group docker
+ubuntu@master:~$ sudo service docker restart
+ubuntu@master:~$ sudo vim /etc/docker/daemon.json
+
+{ "registry-mirrors": [
+    "https://hkaofvr0.mirror.aliyuncs.com"
+  ]
+ }
+
+重启 iTerm2
+
+ubuntu@master:~$ sudo systemctl daemon-reload
+ubuntu@master:~$ sudo systemctl restart docker
+ubuntu@master:~$ docker info
+
+ Registry Mirrors:
+  https://hkaofvr0.mirror.aliyuncs.com/
+
+# Install Compose on Linux systems
+
+ubuntu@master:~$ sudo curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+ubuntu@master:~$ sudo chmod +x /usr/local/bin/docker-compose
+ubuntu@master:~$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+ubuntu@master:~$ docker-compose --version
+
+Docker Compose version v2.0.1
+
+
+```
+
+
+
+
 
 
 
@@ -1904,4 +1993,49 @@ not connected>
 ```
 
 
+
+**微服务打包docker镜像**
+
+```shell
+$ docker build -t memory .
+
+Successfully built 915f17114664
+Successfully tagged memory:latest
+
+ubuntu@x:~/Shared/Memorization-App/account$ docker images
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+memory       latest    915f17114664   2 hours ago   15.2MB
+
+ubuntu@x:~$ docker run -d -P --name memo memory
+5cc4fe17edd5caead6be3ee28222ff218aae77d4d6609e941f0ac2d8b9323228
+
+ubuntu@x:~$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED          STATUS          PORTS                                         NAMES
+5cc4fe17edd5   memory    "./run"   18 seconds ago   Up 15 seconds   0.0.0.0:49156->8080/tcp, :::49156->8080/tcp   memo
+
+ubuntu@x:~$ curl localhost:49156/api/account
+{"hello":"world"}ubuntu@x:~$ curl 0.0.0.0:49156/api/account
+{"hello":"world"}ubuntu@x:~$
+```
+
+
+
+## Docker Compose
+
+Ubuntu 20.04.3 LTS 安装 Docker Compose
+
+```shell
+ubuntu@x:~$ sudo curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   633  100   633    0     0     38      0  0:00:16  0:00:16 --:--:--   170
+100 24.7M  100 24.7M    0     0  1246k      0  0:00:20  0:00:20 --:--:-- 7767k
+
+ubuntu@x:~$ sudo chmod +x /usr/local/bin/docker-compose
+ubuntu@x:~$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+ubuntu@x:~$ docker-compose --version
+Docker Compose version v2.0.1
+
+```
 
