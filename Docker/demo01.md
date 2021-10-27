@@ -307,6 +307,18 @@ NAME      DESCRIPTION                                     STARS     OFFICIAL   A
 redis     Redis is an open source key-value store that…   10055     [OK]
 ```
 
+**root设置**
+```shell
+ubuntu@master:~$ sudo passwd root
+ubuntu@master:~$ sudo passwd -dl root
+
+ubuntu@master:~$ su root
+Password:
+root@master:/home/ubuntu#
+
+root@master:/home/ubuntu# su ubuntu
+ubuntu@master:~$
+```
 
 
 **使用multipass搭建k8s多节点集群和Dashboard**
@@ -323,9 +335,8 @@ master                  Running           192.168.105.5    Ubuntu 20.04 LTS
 node1                   Running           192.168.105.6    Ubuntu 20.04 LTS
 node2                   Running           192.168.105.7    Ubuntu 20.04 LTS
 
-ubuntu@master:~$ sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
-ubuntu@master:~$ sudo rm -f /etc/apt/sources.list
-ubuntu@master:~$ sudo vim /etc/apt/sources.list
+ubuntu@node1:~$ sudo mv /etc/apt/sources.list /etc/apt/sources.list.bak
+ubuntu@node1:~$ sudo vim /etc/apt/sources.list
 
 # ubuntu 20.04(focal) 配置如下
 deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
@@ -352,12 +363,41 @@ ubuntu@master:~$ sudo apt-get upgrade -y
 
 **Ubuntu 安装 Docker**
 
+
+```shell
+
+ubuntu@master:~$ sudo vim /var/snap/docker/1125/config/daemon.json
+ubuntu@master:~$ cat /var/snap/docker/1125/config/daemon.json
+{
+    "log-level":        "error",
+    "storage-driver":   "overlay2"
+    "registry-mirrors": ["https://hkaofvr0.mirror.aliyuncs.com"]
+}
+
+
+
+
+```
+
+**snap国内加速**
+```shell
+$ sudo apt-get install snapd
+ 
+$ sudo snap install snap-store
+ 
+$ sudo snap install snap-store-proxy
+ 
+$ sudo snap install snap-store-proxy-client
+```
+
+
 ```shell
 # 使用官方安装脚本自动安装
 ubuntu@master:~$ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 
 ubuntu@master:~$ docker images
 Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/images/json": dial unix /var/run/docker.sock: connect: permission denied
+
 ubuntu@master:~$ sudo groupadd docker
 groupadd: group 'docker' already exists
 ubuntu@master:~$ sudo gpasswd -a ubuntu docker
@@ -370,10 +410,13 @@ ubuntu@master:~$ sudo vim /etc/docker/daemon.json
   ]
  }
 
-重启 iTerm2
-
 ubuntu@master:~$ sudo systemctl daemon-reload
 ubuntu@master:~$ sudo systemctl restart docker
+# 重启 iTerm2
+ubuntu@node1:~$ exit
+logout
+➜  ~ multipass shell node1
+
 ubuntu@master:~$ docker info
 
  Registry Mirrors:
@@ -391,6 +434,165 @@ Docker Compose version v2.0.1
 
 
 ```
+
+
+
+```shell
+➜  ~ multipass list
+Name                    State             IPv4             Image
+master                  Running           192.168.105.5    Ubuntu 20.04 LTS
+                                          172.17.0.1
+node1                   Running           192.168.105.6    Ubuntu 20.04 LTS
+                                          172.17.0.1
+node2                   Running           192.168.105.7    Ubuntu 20.04 LTS
+                                          172.17.0.1
+
+# 在master添加hosts
+
+ubuntu@master:~$ sudo vim /etc/host
+
+192.168.105.5 master
+192.168.105.6 node1
+192.168.105.7 node2 
+
+ubuntu@master:~$ sudo vim /etc/hosts
+
+192.168.105.5 master
+192.168.105.6 node1
+192.168.105.7 node2 
+
+# iTerm2多个窗口同时输入命令
+打开这个功能的快捷键就是：
+⌘(command) + ⇧(shift) + i  
+会弹出告警信息，点OK确认。  关闭其实也很简单。再次输入刚刚打开的那个命令就行了。
+
+# 关闭防火墙
+ubuntu@master:~$ sudo apt-get install ufw
+
+ubuntu@master:~$ sudo ufw disable
+Firewall stopped and disabled on system startup
+ubuntu@master:~$ sudo ufw status
+Status: inactive
+
+# 关闭selinux
+sed -i 's/enforcing/disabled/' /etc/selinux/config
+
+ubuntu@master:~$ sudo vim /etc/selinux/config
+
+SELINUX=disabled
+
+
+# 关闭swap
+ubuntu@master:~$ sudo sed -ri 's/.*swap.*/#&/' /etc/fstab
+
+
+# 将桥接的IPv4流量传递到iptables的链
+ubuntu@master:~$ sudo vim /etc/sysctl.d/k8s.conf
+ 
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+
+
+# 生效
+ubuntu@master:~$ sudo sysctl --system
+
+
+# 时间同步
+ubuntu@master:~$ sudo timedatectl set-timezone Asia/Shanghai
+
+
+ubuntu@master:~$ sudo apt-get update
+ubuntu@master:~$ sudo apt-get install virtualbox -y
+```
+
+
+
+
+**安装kubeadm，kubelet和kubectl**
+```shell
+ubuntu@master:~$ sudo snap install kubectl --classic
+
+ubuntu@master:~$ sudo snap install kubelet --classic
+
+ubuntu@master:~$ sudo snap install kubeadm --classic
+
+
+# 直接下载并安装 Minikube
+ubuntu@master:~$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+>   && chmod +x minikube
+
+# 将 Minikube 可执行文件添加至 path：
+
+ubuntu@master:~$ sudo mkdir -p /usr/local/bin/
+ubuntu@master:~$ sudo install minikube /usr/local/bin/
+
+ubuntu@master:~$ minikube start
+
+
+
+
+
+```
+
+
+**MicroK8s在几秒钟内安装一个节点，CNCF认证的Kubernetes集群**
+
+MicroK8s是一款适用于Linux、Windows和macOS的轻量级零操作Kubernetes。单个命令将安装所有上游Kubernetes服务及其依赖项。通过支持x86和ARM64，MicroK8从本地工作站运行到边缘和物联网设备。
+
+```shell
+# 在Linux上安装MicroK8s
+ubuntu@master:~$ sudo snap install microk8s --classic
+# 将您的用户添加到microk8s管理组
+# MicroK8s创建一个组，以无缝使用需要管理员权限的命令。使用以下命令加入群组：
+ubuntu@master:~$ sudo usermod -a -G microk8s $USER
+ubuntu@master:~$ sudo chown -f -R $USER ~/.kube
+# 您还需要重新进入会话才能进行群组更新：
+ubuntu@master:~$ su - $USER
+
+# 在Kubernetes启动时检查状态
+ubuntu@master:~$ microk8s status --wait-ready
+
+# 打开你想要的服务
+microk8s enable dashboard dns ingress
+# 尝试microk8s enable --help列出可用服务和可选功能。microk8s disable ‹name›关闭服务。
+
+# 开始使用Kubernetes
+microk8s kubectl get all --all-namespaces
+如果您主要使用MicroK8s，您可以将我们的kubectl作为命令行上的默认库布克特l，alias mkctl=”microk8s kubectl”由于它是标准的上游kubectl，您还可以通过“--kubeconfig”参数指向相应的kubeconfig文件来驱动其他Kubernetes集群。
+
+# 访问Kubernetes仪表板
+microk8s dashboard-proxy
+
+# 启动和停止Kubernetes以节省电池
+
+Kubernetes是一系列系统服务，一直在相互交谈。如果您不需要它们在后台运行，那么您将通过停止它们来节省电池。
+microk8s start和microk8s stop将为您工作
+
+
+多节点集群
+
+Charmed Kubernetes跨云安装CNCF认证的Kubernetes集群
+
+Charmed Kubernetes是一种完全自动化的模型驱动的方法，用于从裸金属到云安装和管理Kubernetes。从头开始构建Kubernetes云，将其与您最喜欢的工具集成，并创建多云拓扑。
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1808,10 +2010,7 @@ root@x:~# sudo passwd -dl root
 
 
 
-```shell
-sudo passwd root
-sudo passwd -dl root
-```
+
 
 
 
