@@ -197,7 +197,8 @@ multipass start x
 
 清理你不需要的东西
 ```
-multipass delete x
+multipass delete master
+multipass delete --all
 multipass purge
 
 ```
@@ -325,8 +326,8 @@ ubuntu@master:~$
 
 ```shell
 multipass launch -n master -c 2 -m 8G -d 40G
-multipass launch -n node1 -c 1 -m 4G -d 20G
-multipass launch -n node2 -c 1 -m 4G -d 20G
+multipass launch -n node1 -c 2 -m 6G -d 20G
+multipass launch -n node2 -c 2 -m 6G -d 20G
 
 
 ➜  ~ multipass list
@@ -361,34 +362,11 @@ ubuntu@master:~$ sudo apt-get upgrade -y
 
 
 
+
+
+
 **Ubuntu 安装 Docker**
 
-
-```shell
-
-ubuntu@master:~$ sudo vim /var/snap/docker/1125/config/daemon.json
-ubuntu@master:~$ cat /var/snap/docker/1125/config/daemon.json
-{
-    "log-level":        "error",
-    "storage-driver":   "overlay2"
-    "registry-mirrors": ["https://hkaofvr0.mirror.aliyuncs.com"]
-}
-
-
-
-
-```
-
-**snap国内加速**
-```shell
-$ sudo apt-get install snapd
- 
-$ sudo snap install snap-store
- 
-$ sudo snap install snap-store-proxy
- 
-$ sudo snap install snap-store-proxy-client
-```
 
 
 ```shell
@@ -424,6 +402,8 @@ ubuntu@master:~$ docker info
 
 # Install Compose on Linux systems
 
+sudo apt install docker-compose -y
+
 ubuntu@master:~$ sudo curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
 ubuntu@master:~$ sudo chmod +x /usr/local/bin/docker-compose
@@ -433,6 +413,26 @@ ubuntu@master:~$ docker-compose --version
 Docker Compose version v2.0.1
 
 
+```
+
+
+**无法使用 swarm**
+```shell
+# 无法使用 swarm: mkdir /var/lib/docker: read-only file system
+ubuntu@master:~$ sudo snap install docker
+ubuntu@master:~$ sudo vim /var/snap/docker/1125/config/daemon.json
+
+{
+    "log-level":        "error",
+    "storage-driver":   "overlay2",
+    "registry-mirrors": ["https://hkaofvr0.mirror.aliyuncs.com"]
+
+}
+
+
+ubuntu@master:~$ sudo systemctl daemon-reload
+ubuntu@master:~$ sudo snap restart docker
+ubuntu@master:~$ sudo snap start docker
 ```
 
 
@@ -576,8 +576,27 @@ Charmed Kubernetes跨云安装CNCF认证的Kubernetes集群
 Charmed Kubernetes是一种完全自动化的模型驱动的方法，用于从裸金属到云安装和管理Kubernetes。从头开始构建Kubernetes云，将其与您最喜欢的工具集成，并创建多云拓扑。
 
 
+# 配置 microk8s 内置 docker 的 registry.mirrors
+
+ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/containerd-template.toml
+
+     [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+        endpoint = ["https://hkaofvr0.mirror.aliyuncs.com",
+                "https://docker.mirrors.ustc.edu.cn",
+                "https://hub-mirror.c.163.com",
+                "https://mirror.ccs.tencentyun.com",
+                "https://registry-1.docker.io" ]
 
 
+ubuntu@master:~$ sudo microk8s stop
+ubuntu@master:~$ sudo microk8s start
+
+
+
+
+
+microk8s stop
+microk8s start
 
 ```
 
@@ -585,9 +604,175 @@ Charmed Kubernetes是一种完全自动化的模型驱动的方法，用于从�
 
 
 
+**docker swarm**
+
+```shell
+ubuntu@master:~$ docker swarm init --advertise-addr=192.168.105.5
+
+Swarm initialized: current node (qkdbdlpsu3ld9r8vwv3ngr4ey) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-27j725aoejjj5o2ejyh4b0ea1s3bk4y3eqg5k9ns7grscv541t-0zabcyioutjgybsw291lprzx9 192.168.105.5:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
 
 
 
+ubuntu@node1:~$ docker swarm join --token SWMTKN-1-27j725aoejjj5o2ejyh4b0ea1s3bk4y3eqg5k9ns7grscv541t-0zabcyioutjgybsw291lprzx9 192.168.105.5:2377
+This node joined a swarm as a worker.
+
+ubuntu@node2:~$ docker swarm join --token SWMTKN-1-27j725aoejjj5o2ejyh4b0ea1s3bk4y3eqg5k9ns7grscv541t-0zabcyioutjgybsw291lprzx9 192.168.105.5:2377
+This node joined a swarm as a worker.
+
+ubuntu@master:~$ docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+qkdbdlpsu3ld9r8vwv3ngr4ey *   master     Ready     Active         Leader           20.10.8
+svuvyka6s8lquq5gfmcqtwp0m     node1      Ready     Active                          20.10.8
+mctvuj0sf77y7d52jwbhbbirt     node2      Ready     Active                          20.10.8
+
+
+ubuntu@master:~$ docker service create --name demo busybox sh -c "while true;do sleep 3600;done"
+plzhrzwk957zveodenc75o5rb
+overall progress: 1 out of 1 tasks
+1/1: running
+verify: Service converged
+ubuntu@master:~$ docker service ls
+
+ID             NAME      MODE         REPLICAS   IMAGE            PORTS
+plzhrzwk957z   demo      replicated   1/1        busybox:latest
+
+ubuntu@master:~$ docker service ps demo
+ID             NAME      IMAGE            NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+xvgclxgnc1js   demo.1    busybox:latest   master    Running         Running 41 seconds ago
+
+
+ubuntu@master:~$ docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED              STATUS              PORTS     NAMES
+61bdd70e034d   busybox:latest   "sh -c 'while true;d…"   About a minute ago   Up About a minute             demo.1.xvgclxgnc1jszgmsus0ndscz7
+
+
+ubuntu@master:~$ docker service scale demo-5
+Invalid scale specifier 'demo-5'.
+See 'docker service scale --help'.
+
+Usage:  docker service scale SERVICE=REPLICAS [SERVICE=REPLICAS...]
+
+Scale one or multiple replicated services
+ubuntu@master:~$ docker service scale demo=5
+demo scaled to 5
+overall progress: 5 out of 5 tasks
+1/5: running   [==================================================>]
+2/5: running   [==================================================>]
+3/5: running   [==================================================>]
+4/5: running   [==================================================>]
+5/5: running   [==================================================>]
+verify: Service converged
+ubuntu@master:~$ docker service ls
+ID             NAME      MODE         REPLICAS   IMAGE            PORTS
+plzhrzwk957z   demo      replicated   5/5        busybox:latest
+ubuntu@master:~$ docker service ps demo
+ID             NAME      IMAGE            NODE      DESIRED STATE   CURRENT STATE                ERROR     PORTS
+xvgclxgnc1js   demo.1    busybox:latest   master    Running         Running 5 minutes ago
+v5snefltyca7   demo.2    busybox:latest   node1     Running         Running 42 seconds ago
+cb6sfs86mbs9   demo.3    busybox:latest   node2     Running         Running 25 seconds ago
+nnl3634ts1d5   demo.4    busybox:latest   node2     Running         Running 25 seconds ago
+jy9o6i5jr4x7   demo.5    busybox:latest   master    Running         Running about a minute ago
+
+ubuntu@node1:~$ docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS              PORTS     NAMES
+dddeb7cb957f   busybox:latest   "sh -c 'while true;d…"   2 minutes ago   Up About a minute             demo.2.v5snefltyca7cpc5tln5f139t
+
+
+ubuntu@node2:~$ docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS              PORTS     NAMES
+594b0aec3700   busybox:latest   "sh -c 'while true;d…"   2 minutes ago   Up About a minute             demo.4.nnl3634ts1d5kpuwaprmytsr9
+6afbe3eeb282   busybox:latest   "sh -c 'while true;d…"   2 minutes ago   Up About a minute             demo.3.cb6sfs86mbs9o5caa5spkvytk
+
+ubuntu@node2:~$ docker rm -f 6afbe3eeb282
+6afbe3eeb282
+
+
+ubuntu@master:~$ docker service ls
+ID             NAME      MODE         REPLICAS   IMAGE            PORTS
+plzhrzwk957z   demo      replicated   5/5        busybox:latest
+ubuntu@master:~$ docker service ps demo
+ID             NAME         IMAGE            NODE      DESIRED STATE   CURRENT STATE            ERROR                         PORTS
+xvgclxgnc1js   demo.1       busybox:latest   master    Running         Running 9 minutes ago
+v5snefltyca7   demo.2       busybox:latest   node1     Running         Running 4 minutes ago
+h7wi2biidqtg   demo.3       busybox:latest   node1     Running         Running 29 seconds ago
+cb6sfs86mbs9    \_ demo.3   busybox:latest   node2     Shutdown        Failed 38 seconds ago    "task: non-zero exit (137)"
+nnl3634ts1d5   demo.4       busybox:latest   node2     Running         Running 4 minutes ago
+jy9o6i5jr4x7   demo.5       busybox:latest   master    Running         Running 5 minutes ago
+
+
+
+ubuntu@node1:~$ docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED              STATUS              PORTS     NAMES
+c92419e48347   busybox:latest   "sh -c 'while true;d…"   About a minute ago   Up About a minute             demo.3.h7wi2biidqtghd4a0iityh04v
+dddeb7cb957f   busybox:latest   "sh -c 'while true;d…"   6 minutes ago        Up 5 minutes                  demo.2.v5snefltyca7cpc5tln5f139t
+
+
+
+ubuntu@master:~$ docker service rm demo
+demo
+ubuntu@master:~$ docker service ps demo
+no such service: demo
+
+
+
+```
+
+
+
+**实战**
+
+```shell
+ubuntu@master:~$ docker network create -d overlay demo
+zg39xwus1qir36i5h21dveyle
+ubuntu@master:~$ docker network ls
+NETWORK ID     NAME              DRIVER    SCOPE
+zg39xwus1qir   demo              overlay   swarm
+
+ubuntu@master:~$ docker service create --name whoami -p 8000:8000 --network demo -d jwilder/whoami
+ov1tc4kbuziur65jegndakp48
+
+ubuntu@master:~$ docker service ls
+ID             NAME      MODE         REPLICAS   IMAGE                   PORTS
+zhtfytd7iuma   whoami    replicated   1/1        jwilder/whoami:latest   *:8000->8000/tcp
+
+ubuntu@master:~$ docker service ps whoami
+ID             NAME       IMAGE                   NODE      DESIRED STATE   CURRENT STATE           ERROR     PORTS
+jvkkmb7fg5rj   whoami.1   jwilder/whoami:latest   master    Running         Running 3 minutes ago
+
+
+ubuntu@master:~$ docker ps
+CONTAINER ID   IMAGE                   COMMAND       CREATED         STATUS         PORTS      NAMES
+c87e0f5942ea   jwilder/whoami:latest   "/app/http"   4 minutes ago   Up 4 minutes   8000/tcp   whoami.1.jvkkmb7fg5rji73hn2zyseu16
+
+ubuntu@master:~$ curl 127.0.0.1:8000
+I'm c87e0f5942ea
+
+
+ubuntu@master:~$ docker service create --name client -d --network demo busybox sh -c "while true; do sleep 3600; done"
+deqbq06yjfth518e2knyk0qpv
+ubuntu@master:~$ docker service ls
+ID             NAME      MODE         REPLICAS   IMAGE                   PORTS
+deqbq06yjfth   client    replicated   1/1        busybox:latest
+zhtfytd7iuma   whoami    replicated   1/1        jwilder/whoami:latest   *:8000->8000/tcp
+
+
+ubuntu@master:~$ docker service ps client
+ID             NAME       IMAGE            NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+9r70ocyyfx5w   client.1   busybox:latest   node1     Running         Running 49 seconds ago
+
+
+
+
+
+
+
+```
 
 
 
