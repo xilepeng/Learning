@@ -1,5 +1,10 @@
 
+```shell
+brew install --cask --appdir=/Applications docker
 
+
+
+```
 
 ```bash
 
@@ -508,31 +513,7 @@ ubuntu@master:~$ sudo apt-get install virtualbox -y
 
 
 
-**安装kubeadm，kubelet和kubectl**
-```shell
-ubuntu@master:~$ sudo snap install kubectl --classic
 
-ubuntu@master:~$ sudo snap install kubelet --classic
-
-ubuntu@master:~$ sudo snap install kubeadm --classic
-
-
-# 直接下载并安装 Minikube
-ubuntu@master:~$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
->   && chmod +x minikube
-
-# 将 Minikube 可执行文件添加至 path：
-
-ubuntu@master:~$ sudo mkdir -p /usr/local/bin/
-ubuntu@master:~$ sudo install minikube /usr/local/bin/
-
-ubuntu@master:~$ minikube start
-
-
-
-
-
-```
 
 
 **MicroK8s在几秒钟内安装一个节点，CNCF认证的Kubernetes集群**
@@ -549,8 +530,68 @@ ubuntu@master:~$ sudo chown -f -R $USER ~/.kube
 # 您还需要重新进入会话才能进行群组更新：
 ubuntu@master:~$ su - $USER
 
+
+
+
+
 # 在Kubernetes启动时检查状态
 ubuntu@master:~$ microk8s status --wait-ready
+
+
+
+ubuntu@master:~$ microk8s status
+microk8s is not running. Use microk8s inspect for a deeper inspection.
+
+
+
+# 1. 修改pod的sandbox
+pod的sandbox 默认是 k8s.gcr.io/pause:3.1，这个镜像是无法获取的。需要将sandbox修改为国内可以获取的镜像。
+ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/kubelet
+
+--pod-infra-container-image=s7799653/pause:3.1
+
+# 2. 配置 microk8s 内置 docker 的 registry.mirrors
+
+
+ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/containerd.toml
+
+    sandbox_image = "s7799653/pause:3.1"
+
+     [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+        endpoint = ["https://hkaofvr0.mirror.aliyuncs.com",
+                "https://docker.mirrors.ustc.edu.cn",
+                "https://hub-mirror.c.163.com",
+                "https://mirror.ccs.tencentyun.com",
+                "https://registry-1.docker.io" ]
+
+
+
+ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/containerd-template.toml
+
+    sandbox_image = "s7799653/pause:3.1"
+        endpoint = ["https://hkaofvr0.mirror.aliyuncs.com",
+                "https://registry-1.docker.io", ]
+
+
+ubuntu@master:~$ microk8s.stop&&microk8s.start
+
+ubuntu@master:~$ microk8s stop
+Stopped.
+ubuntu@master:~$ microk8s start
+Started.
+ubuntu@master:~$ microk8s status
+microk8s is running
+
+
+
+
+
+
+
+
+
+
+
 
 # 打开你想要的服务
 microk8s enable dashboard dns ingress
@@ -576,27 +617,10 @@ Charmed Kubernetes跨云安装CNCF认证的Kubernetes集群
 Charmed Kubernetes是一种完全自动化的模型驱动的方法，用于从裸金属到云安装和管理Kubernetes。从头开始构建Kubernetes云，将其与您最喜欢的工具集成，并创建多云拓扑。
 
 
-# 配置 microk8s 内置 docker 的 registry.mirrors
-
-ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/containerd-template.toml
-
-     [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-        endpoint = ["https://hkaofvr0.mirror.aliyuncs.com",
-                "https://docker.mirrors.ustc.edu.cn",
-                "https://hub-mirror.c.163.com",
-                "https://mirror.ccs.tencentyun.com",
-                "https://registry-1.docker.io" ]
-
-
-ubuntu@master:~$ sudo microk8s stop
-ubuntu@master:~$ sudo microk8s start
 
 
 
 
-
-microk8s stop
-microk8s start
 
 ```
 
@@ -728,48 +752,107 @@ no such service: demo
 **实战**
 
 ```shell
-ubuntu@master:~$ docker network create -d overlay demo
-zg39xwus1qir36i5h21dveyle
-ubuntu@master:~$ docker network ls
-NETWORK ID     NAME              DRIVER    SCOPE
-zg39xwus1qir   demo              overlay   swarm
+ubuntu@master:~$ sudo systemctl stop docker
+Warning: Stopping docker.service, but it can still be activated by:
+  docker.socket
+  
+ubuntu@node1:~$ docker node ls
+Error response from daemon: This node is not a swarm manager. Worker nodes can\'t be used to view or modify cluster state. Please run this command on a manager node or promote the current node to a manager.
 
-ubuntu@master:~$ docker service create --name whoami -p 8000:8000 --network demo -d jwilder/whoami
-ov1tc4kbuziur65jegndakp48
+ubuntu@master:~$ sudo systemctl start docker
+
+
+ubuntu@node2:~$ docker swarm leave
+Node left the swarm.
+
+ubuntu@master:~$ docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+qn19qqxq66mxqbsti24f2mn3k *   master     Ready     Active         Leader           20.10.10
+sfwf6nhluw5ohecrn7ufuqrxq     node1      Ready     Active                          20.10.10
+r8yf610jdyn2lmnwh4tq1ygza     node2      Down      Active                          20.10.10
+
+ubuntu@master:~$ docker swarm join-token manager
+To add a manager to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-11h76824w8y8g2wk866zmqmnk681a20rekj9novh8oaqxxasiu-6565rved6au530fwkx77wjytn 192.168.105.5:2377
+    
+ubuntu@node2:~$ docker swarm join --token SWMTKN-1-11h76824w8y8g2wk866zmqmnk681a20rekj9novh8oaqxxasiu-6565rved6au530fwkx77wjytn 192.168.105.5:2377
+This node joined a swarm as a manager.
+
+ubuntu@node2:~$ docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+qn19qqxq66mxqbsti24f2mn3k     master     Ready     Active         Leader           20.10.10
+sfwf6nhluw5ohecrn7ufuqrxq     node1      Ready     Active                          20.10.10
+r8yf610jdyn2lmnwh4tq1ygza     node2      Down      Active                          20.10.10
+z8n0qyhc7isk0y11h3lfkii29 *   node2      Ready     Active         Reachable        20.10.10
+
+# 集群可用，3个主节点，大于一台管理节点存活
+# Raft协议：保证大多数节点存活，才可以使用，高可用
+# 弹性、扩缩容
+
+ubuntu@master:~$ docker service create -p 8888:80 --name my-nginx nginx
+
+mzzf4c0bvvubhsmec0g5vgcnq
+overall progress: 1 out of 1 tasks
+1/1: running
+verify: Service converged
+
+ubuntu@master:~$ docker service ps my-nginx
+ID             NAME         IMAGE          NODE      DESIRED STATE   CURRENT STATE         ERROR     PORTS
+7g80iphcw4bh   my-nginx.1   nginx:latest   node1     Running         Running 2 hours ago
 
 ubuntu@master:~$ docker service ls
-ID             NAME      MODE         REPLICAS   IMAGE                   PORTS
-zhtfytd7iuma   whoami    replicated   1/1        jwilder/whoami:latest   *:8000->8000/tcp
-
-ubuntu@master:~$ docker service ps whoami
-ID             NAME       IMAGE                   NODE      DESIRED STATE   CURRENT STATE           ERROR     PORTS
-jvkkmb7fg5rj   whoami.1   jwilder/whoami:latest   master    Running         Running 3 minutes ago
+ID             NAME       MODE         REPLICAS   IMAGE                   PORTS
+mzzf4c0bvvub   my-nginx   replicated   1/1        nginx:latest            *:8888->80/tcp
 
 
-ubuntu@master:~$ docker ps
-CONTAINER ID   IMAGE                   COMMAND       CREATED         STATUS         PORTS      NAMES
-c87e0f5942ea   jwilder/whoami:latest   "/app/http"   4 minutes ago   Up 4 minutes   8000/tcp   whoami.1.jvkkmb7fg5rji73hn2zyseu16
+ubuntu@master:~$ docker service update --replicas 3 my-nginx
+my-nginx
+overall progress: 3 out of 3 tasks
+1/3: running
+2/3: running
+3/3: running
+verify: Service converged
+ubuntu@master:~$ docker service ps my-nginx
+ID             NAME         IMAGE          NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+7g80iphcw4bh   my-nginx.1   nginx:latest   node1     Running         Running 2 hours ago
+l4fn8a3ubibw   my-nginx.2   nginx:latest   node2     Running         Running 28 seconds ago
+tk2ewthlrpdh   my-nginx.3   nginx:latest   master    Running         Running 30 seconds ago
 
-ubuntu@master:~$ curl 127.0.0.1:8000
-I'm c87e0f5942ea
 
 
-ubuntu@master:~$ docker service create --name client -d --network demo busybox sh -c "while true; do sleep 3600; done"
-deqbq06yjfth518e2knyk0qpv
+http://192.168.105.6:8888
+
+Welcome to nginx!
+
+If you see this page, the nginx web server is successfully installed and working. Further configuration is required.
+
+For online documentation and support please refer to nginx.org.
+Commercial support is available at nginx.com.
+
+Thank you for using nginx.
+
+ubuntu@master:~$ docker service scale my-nginx=5
+my-nginx scaled to 5
+overall progress: 5 out of 5 tasks
+1/5: running
+2/5: running
+3/5: running
+4/5: running
+5/5: running
+verify: Service converged
+ubuntu@master:~$ docker service ps my-nginx
+ID             NAME         IMAGE          NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+7g80iphcw4bh   my-nginx.1   nginx:latest   node1     Running         Running 2 hours ago
+lsgi6ipstv28   my-nginx.2   nginx:latest   master    Running         Running 10 seconds ago
+si2xexb5ct94   my-nginx.3   nginx:latest   node2     Running         Running 9 seconds ago
+5ngt0ses5hyk   my-nginx.4   nginx:latest   node2     Running         Running 8 seconds ago
+qzz62rlmz93k   my-nginx.5   nginx:latest   node1     Running         Running 11 seconds ago
+
+ubuntu@master:~$ docker service rm my-nginx
+my-nginx
 ubuntu@master:~$ docker service ls
 ID             NAME      MODE         REPLICAS   IMAGE                   PORTS
-deqbq06yjfth   client    replicated   1/1        busybox:latest
-zhtfytd7iuma   whoami    replicated   1/1        jwilder/whoami:latest   *:8000->8000/tcp
-
-
-ubuntu@master:~$ docker service ps client
-ID             NAME       IMAGE            NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
-9r70ocyyfx5w   client.1   busybox:latest   node1     Running         Running 49 seconds ago
-
-
-
-
-
 
 
 ```
@@ -1681,7 +1764,7 @@ drwxr-xr-x   2 root root 4096 Apr 15  2020 home
 ubuntu@x:~/dockerfile$ docker login -u x
 
 ubuntu@x:~$ docker login
-Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Login with your Docker ID to push and pull images from Docker Hub. If you don not have a Docker ID, head over to https://hub.docker.com to create one.
 Username: xilepeng
 Password:
 WARNING! Your password will be stored unencrypted in /home/ubuntu/.docker/config.json.
