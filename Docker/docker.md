@@ -1,10 +1,5 @@
 
-```shell
-brew install --cask --appdir=/Applications docker
 
-
-
-```
 
 ```bash
 
@@ -255,14 +250,6 @@ sudo launchctl load /Library/LaunchDaemons/com.canonical.multipassd.plist
 
 
 
-```bash
-➜  ~ multipass exec x /bin/bash
-To run a command as administrator (user "root"), use "sudo <command>".
-See "man sudo_root" for details.
-
-ubuntu@x:~$
-```
-
 
 
 
@@ -331,9 +318,12 @@ ubuntu@master:~$
 
 ```shell
 multipass launch -n master -c 2 -m 8G -d 40G
-multipass launch -n node1 -c 2 -m 6G -d 20G
-multipass launch -n node2 -c 2 -m 6G -d 20G
+multipass launch -n node1 -c 2 -m 8G -d 40G
+multipass launch -n node2 -c 2 -m 8G -d 40G
 
+
+ubuntu@node1:~$ microk8s.enable registry:size=40G
+Addon registry is already enabled.
 
 ➜  ~ multipass list
 Name                    State             IPv4             Image
@@ -367,8 +357,11 @@ ubuntu@master:~$ sudo apt-get upgrade -y
 
 
 
+**Mac 安装 Docker**
+```shell
+brew install --cask --appdir=/Applications docker
 
-
+```
 
 **Ubuntu 安装 Docker**
 
@@ -480,7 +473,6 @@ ubuntu@master:~$ sudo ufw status
 Status: inactive
 
 # 关闭selinux
-sed -i 's/enforcing/disabled/' /etc/selinux/config
 
 ubuntu@master:~$ sudo vim /etc/selinux/config
 
@@ -564,12 +556,20 @@ ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/containerd.toml
                 "https://mirror.ccs.tencentyun.com",
                 "https://registry-1.docker.io" ]
 
+        endpoint = ["https://hkaofvr0.mirror.aliyuncs.com",
+                "https://docker.mirrors.ustc.edu.cn",
+                "https://hub-mirror.c.163.com",
+                "https://mirror.ccs.tencentyun.com",
+                "https://registry-1.docker.io", ]
 
 
 ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/containerd-template.toml
 
     sandbox_image = "s7799653/pause:3.1"
         endpoint = ["https://hkaofvr0.mirror.aliyuncs.com",
+                "https://docker.mirrors.ustc.edu.cn",
+                "https://hub-mirror.c.163.com",
+                "https://mirror.ccs.tencentyun.com",
                 "https://registry-1.docker.io", ]
 
 
@@ -2503,6 +2503,10 @@ ubuntu@x:~$ sudo chmod +x /usr/local/bin/docker-compose
 ubuntu@x:~$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 ubuntu@x:~$ docker-compose --version
 Docker Compose version v2.0.1
+
+```
+
+
 
 ```
 
