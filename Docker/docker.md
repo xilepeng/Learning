@@ -317,9 +317,9 @@ ubuntu@master:~$
 **使用multipass搭建k8s多节点集群和Dashboard**
 
 ```shell
-multipass launch -n master -c 2 -m 8G -d 40G
-multipass launch -n node1 -c 2 -m 8G -d 40G
-multipass launch -n node2 -c 2 -m 8G -d 40G
+multipass launch -n master -c 2 -m 4G -d 20G
+multipass launch -n node1 -c 1 -m 4G -d 20G
+multipass launch -n node2 -c 1 -m 4G -d 20G
 
 
 ubuntu@node1:~$ microk8s.enable registry:size=40G
@@ -453,8 +453,21 @@ ubuntu@master:~$ sudo vim /etc/host
 192.168.105.6 node1
 192.168.105.7 node2 
 
+
+在所有节点添加
 ubuntu@master:~$ sudo vim /etc/hosts
 
+192.168.105.5 master
+192.168.105.6 node1
+192.168.105.7 node2 
+
+
+ubuntu@node1:~$ sudo vim /etc/hosts
+192.168.105.5 master
+192.168.105.6 node1
+192.168.105.7 node2 
+
+ubuntu@node2:~$ sudo vim /etc/hosts
 192.168.105.5 master
 192.168.105.6 node1
 192.168.105.7 node2 
