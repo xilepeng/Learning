@@ -270,6 +270,122 @@ metrics-server-75cff5db9-5bbzz               1/1     Running   1 (50s ago)   2m5
 
 
 
+ubuntu@master:~$ kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://127.0.0.1:16443
+  name: microk8s-cluster
+contexts:
+- context:
+    cluster: microk8s-cluster
+    user: admin
+  name: microk8s
+current-context: microk8s
+kind: Config
+preferences: {}
+users:
+- name: admin
+  user:
+    token: REDACTED
+
+
+ubuntu@master:~$ kubectl config get-contexts
+CURRENT   NAME       CLUSTER            AUTHINFO   NAMESPACE
+*         microk8s   microk8s-cluster   admin
+
+
+
+
+ubuntu@master:~$ microk8s enable dashboard dns registry istio
+
+ubuntu@master:~$ kubectl port-forward -n kube-system service/kubernetes-dashboard 10443:443
+
+ubuntu@master:~$ microk8s dashboard-proxy
+Checking if Dashboard is running.
+Dashboard will be available at https://127.0.0.1:10443
+Use the following token to login:
+eyJhbGciOiJSUzI1NiIsImtpZCI6IkNUVlFwaFgyUkpib3Bab0x1MDJrTEpHakhXNEZEc2lwbmFuWFdFUkxEbFUifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLWQyaHdmIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJkNWU4MDQxNS04MDg0LTQ5MzYtYWY3NC0zOTRkYjI1NjBhMmMiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.Rq3WsLmHTsX1_TKe7eyaCl3Otm8HPFuJWU-_xWOm7HguBYNufEIVzyj35gtfmfOHIN_Qbk5hSM69D5qAbiku_PDQEcjk6NHcqEk4fzXhvvYqqwbsDpYWT1Q10xQbcOcdFEOwk9meAxa_fqxSHczyl4WoS20JiyWk4TRY4FE4YxwL5rj4HVhGIjstK6FyKhUGloqE5HiPQ_xlxCgdzMMVM-R8eQ6-2IHMGmK6zLeDOzKl3_l9CqLiRPPTjLpGRtxRQgB40sNALQZScU_Q6HAyCY5N-nc3vFc-v0bG_nT3bH3VsHf3CVBqKWBQNNN1P9JG6JVeFigClLmqgKdKSQYNYw
+
+
+
+
+ubuntu@node1:~$ microk8s config
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUREekNDQWZlZ0F3SUJBZ0lVY3NUU1dXR05TekoyelQyVjRMMENSMnVGd3I0d0RRWUpLb1pJaHZjTkFRRUwKQlFBd0Z6RVZNQk1HQTFVRUF3d01NVEF1TVRVeUxqRTRNeTR4TUI0WERUSXhNVEF6TVRBME16WXhPRm9YRFRNeApNVEF5T1RBME16WXhPRm93RnpFVk1CTUdBMVVFQXd3TU1UQXVNVFV5TGpFNE15NHhNSUlCSWpBTkJna3Foa2lHCjl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUE2eW9GUDVGZFR4cUdzb09TTldHTDZqbTJZbzIxbFNCOEE4dnYKZW9OS3lFWnR3MUtuSmd3d09UdU1Lek5CMG9WSzl6ZUtTMlFrd3BhdDNKSTlicE92RWZzbElUTVBhUDMxdDRSTwp0dzBZOTNaSms2eFV3NTAvSkROalUrS0M0bzlYQk1jZ1dtcDJyb2xRVGYrTmRtUW9tZlpOOTJHMzdGQXZKQ3o1CjYwYXFhazRxVXVLZmRRNjhHY0xleU51VHByRSt0Yi9iNmJHbXpGcWFIc2Q0Ukplazl5T0F2cThSNzlOeWNXWGsKZlRDMGhIVnRNN0VhNEhUS2ZoQ2pKeExXaTdyK0RPV0U1cEF3ODVGK3d0MStxZ01KeEdCUjMrS3FYWHo0Qm9zUQpxbFhoZTd0dUJrWGpOSkZWNDRyalJjYTBBUENYUTdOQjJrYWlVMG1NL2F5ZXovZlFFd0lEQVFBQm8xTXdVVEFkCkJnTlZIUTRFRmdRVTloRS9UNEM2Y3NickRHeFVyUEhMeGxDTWxQRXdId1lEVlIwakJCZ3dGb0FVOWhFL1Q0QzYKY3NickRHeFVyUEhMeGxDTWxQRXdEd1lEVlIwVEFRSC9CQVV3QXdFQi96QU5CZ2txaGtpRzl3MEJBUXNGQUFPQwpBUUVBQWw2TVEyZWZ5aW94dmRjbjUyREdML2lMMUM2UDR0eWFJNVJQVWJEZFVNYThlRHFsVzNJd3BsTWtpcWRvCnUydG5NajFEbWJZb2pKektnL3BOWVp4dzl2cVVaREhJV2FBT0VtaWoyaUxpOHg3U3JSeEtqd2NFT3FRMmlQT2IKN0ZmU2NPaXp3RGdRYmRkSzVpb2xhdXloS3Z4MERUM2ZjZDJpemp0N0QreitZNlhaOTg0MHhOeVhhcXA2ZTBxNApKU2llcUNpYXV1R2VucU04QnpnRzV1V3YvQ1FmdmpuMHNSZVVKY0phSTl1QTAzblNBYUhyZS9XQWwxQ2JDYkVLCms1aTZrVmJta3A3LzI0NUFCeFp0WitkRkY4alZaSVhhS1JSMkhSR080V3FWTFV2cXZmREFaZ1BJdHVNbVhiR1EKSGZ6RkhzZGFKcWNLeWpXUHJCMklRUlNZMUE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://192.168.105.6:16443
+  name: microk8s-cluster
+contexts:
+- context:
+    cluster: microk8s-cluster
+    user: admin
+  name: microk8s
+current-context: microk8s
+kind: Config
+preferences: {}
+users:
+- name: admin
+  user:
+    token: OVJzY1ZKOWJiNGRiWG9sczJrdzQ4eE9kSFZJNktMT24vZnlBYysySGhGOD0K
+
+
+
+
+ubuntu@node2:~$ microk8s config
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUREekNDQWZlZ0F3SUJBZ0lVWlRhNUhCanczYWpkQy90bGRrSUtNZlgzb3dBd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0Z6RVZNQk1HQTFVRUF3d01NVEF1TVRVeUxqRTRNeTR4TUI0WERUSXhNVEF6TVRBME16WXpNbG9YRFRNeApNVEF5T1RBME16WXpNbG93RnpFVk1CTUdBMVVFQXd3TU1UQXVNVFV5TGpFNE15NHhNSUlCSWpBTkJna3Foa2lHCjl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUEwaXUwU05jdzVLc01sY3hKdWY1blJhN0JrVzJNeFNVdFg0M3cKSEdHWmVMSHNEREE5Sm9aUWZIZUQ3bjlML05mRS81MEJ5Q1Y4K3NYSlp4dXBDeStka1M0d2FnSGFncVdYUVVuZwo5MzFTS1NGc0xOTGM4VEVlOW9ONWRGL1YvVEx0cENrSWhhNVU2ZHVmc2ZVcXFnbGR0QXFHZnRDOENWQ2dOZWJrCkIya2ovWWlCamtnZm02VDFCcFFCSXVUOHZmekFGdyt3U2JpZUNPYjVuR1NYZmFneDdBeU41U3lCY0RFeGhETDkKRW4xdTNYcWt4aGE4SzMxUWRqVW5URW5NSTNPK01DR3FJZGd3WUpCemNwK1hDTVBkaE5Pd1hxRDF2NjY3N29icQpiWGh6VS9CTlZzLzUyVStvdkV4ekZLRktHSEErM3pLV0dEZlV6TDZaNS85ZEl1ZDFWd0lEQVFBQm8xTXdVVEFkCkJnTlZIUTRFRmdRVTNEV1ZrWUR5cXhBNjUyNzZaUFQzcDJTSEV0WXdId1lEVlIwakJCZ3dGb0FVM0RXVmtZRHkKcXhBNjUyNzZaUFQzcDJTSEV0WXdEd1lEVlIwVEFRSC9CQVV3QXdFQi96QU5CZ2txaGtpRzl3MEJBUXNGQUFPQwpBUUVBU2svRWwyWkJDT2JlRHBNRFpETm5jZHRHVWpVU3kzcCszVWM1Z2hJdTV2YVp5MVFHS3B1am9lTUpqakxoCkQxc0FJQ3RUNTZKVGplY3VMVFNSVEtBeW9UQVZDeDVRQ2x3YkVzamFadTJ3TTcwSElKS0MvaVZSdkdXVFlJelgKTURQYjVFVExEUnZ4NTlCWHgvcHRkM3VrZnUxNDA1Q1hua1U5dXlMODlNOFpOYlgwZzFNYUFTRHByUGcrVWJCWAowMmhWOGptaE5ITi9UTEFIa2hBajJzQkIzczVDTjQ1WVZTOVVTTHIzK09PRC9Lb0dvcU8vd3RMQVhMbjBvVm1SCkhFMHNaUUlVSC9Mb2lQbVh0OGF2VWYzTkhOK29KSXU2S0lOR2JUaUhBc1htb2l4S1d1WUVOaWNDRVNodXFoK3EKMW9idWFVa1FwOVZjTEtVcmRrcU82WFplenc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://192.168.105.7:16443
+  name: microk8s-cluster
+contexts:
+- context:
+    cluster: microk8s-cluster
+    user: admin
+  name: microk8s
+current-context: microk8s
+kind: Config
+preferences: {}
+users:
+- name: admin
+  user:
+    token: SG16QUZIS2M0bjRhQ2pCd2xpay9uSVNDVElob3V0K0lSU0ZhWVR6Tll4az0K
+
+
+
+
+ubuntu@master:~$ microk8s add-node
+From the node you wish to join to this cluster, run the following:
+microk8s join 192.168.105.5:25000/d18d10d874acfd2b539e490e93439f2f/0e3a1ca4a9ea
+
+If the node you are adding is not reachable through the default interface you can use one of the following:
+ microk8s join 192.168.105.5:25000/d18d10d874acfd2b539e490e93439f2f/0e3a1ca4a9ea
+ microk8s join 172.17.0.1:25000/d18d10d874acfd2b539e490e93439f2f/0e3a1ca4a9ea
+
+
+
+
+
+ubuntu@node1:~$ microk8s join 192.168.105.5:25000/cad1bfa9289242ab68e41c3996db7ffa/0e3a1ca4a9ea
+Contacting cluster at 192.168.105.5
+Waiting for this node to finish joining the cluster. .. .. .. .. .. .. .. .. .. ..
+
+
+ubuntu@node2:~$ microk8s join 192.168.105.5:25000/03d641eb4d7790ddca34bbdb7d27e184/0e3a1ca4a9ea
+Contacting cluster at 192.168.105.5
+Waiting for this node to finish joining the cluster. ..
+
+
+ubuntu@master:~$ microk8s kubectl get no
+NAME     STATUS   ROLES    AGE     VERSION
+master   Ready    <none>   3h17m   v1.22.2-3+9ad9ee77396805
+node1    Ready    <none>   34m     v1.22.2-3+9ad9ee77396805
+node2    Ready    <none>   27m     v1.22.2-3+9ad9ee77396805
+
+
 
 
 ```
