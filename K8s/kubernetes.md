@@ -247,13 +247,17 @@ ubuntu@master:~$ sudo vim /etc/docker/daemon.json
 ubuntu@master:~$ sudo systemctl restart docker
 
 
+
+
 ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/kubelet
 
 --pod-infra-container-image=s7799653/pause:3.1
 
 ubuntu@master:~$ sudo vim /var/snap/microk8s/current/args/containerd-template.toml
 
-sandbox_image = s7799653/pause:3.1
+sandbox_image = "s7799653/pause:3.1"
+
+
 
  "registry-mirrors":[
         "https://hkaofvr0.mirror.aliyuncs.com",
@@ -267,7 +271,7 @@ ubuntu@master:~$ microk8s.stop && microk8s.start
 
 sudo snap alias microk8s.kubectl kubectl
 
-
+sudo snap alias microk8s.kubectl microk8s.kubectl
 
 
 
@@ -369,8 +373,12 @@ Events:
 ```
 
 ```shell
+好像不好用
 由于网络问题会导致相关镜像下载失败，我们通常会使用VPN进行镜像下载，这里提供一个无需VPN的配置方式，
 在/etc/hosts中添加以下内容：
+
+sudo vim /etc/hosts
+
 172.217.197.82   k8s.gcr.io
 ```
 
