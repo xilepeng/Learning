@@ -300,62 +300,6 @@ NAME      DESCRIPTION                                     STARS     OFFICIAL   A
 redis     Redis is an open source key-value store that…   10055     [OK]
 ```
 
-**root设置**
-```shell
-ubuntu@master:~$ sudo passwd root
-ubuntu@master:~$ sudo passwd -dl root
-
-ubuntu@master:~$ su root
-Password:
-root@master:/home/ubuntu#
-
-root@master:/home/ubuntu# su ubuntu
-ubuntu@master:~$
-```
-
-
-**使用multipass搭建k8s多节点集群和Dashboard**
-
-```shell
-multipass launch -n master -c 2 -m 4G -d 20G
-multipass launch -n node1 -c 1 -m 4G -d 20G
-multipass launch -n node2 -c 1 -m 4G -d 20G
-
-
-ubuntu@node1:~$ microk8s.enable registry:size=40G
-Addon registry is already enabled.
-
-➜  ~ multipass list
-Name                    State             IPv4             Image
-master                  Running           192.168.105.5    Ubuntu 20.04 LTS
-node1                   Running           192.168.105.6    Ubuntu 20.04 LTS
-node2                   Running           192.168.105.7    Ubuntu 20.04 LTS
-
-ubuntu@node1:~$ sudo mv /etc/apt/sources.list /etc/apt/sources.list.bak
-ubuntu@node1:~$ sudo vim /etc/apt/sources.list
-
-# ubuntu 20.04(focal) 配置如下
-deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-
-deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-
-deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-
-deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
-
-deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-
-
-ubuntu@master:~$ sudo apt-get update
-ubuntu@master:~$ sudo apt-get upgrade -y
-```
-
-
 
 **Mac 安装 Docker**
 ```shell
@@ -363,58 +307,8 @@ brew install --cask --appdir=/Applications docker
 
 ```
 
-**Ubuntu 安装 Docker**
 
-
-
-```shell
-# 使用官方安装脚本自动安装
-ubuntu@master:~$ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
-
-ubuntu@master:~$ docker images
-Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/images/json": dial unix /var/run/docker.sock: connect: permission denied
-
-ubuntu@master:~$ sudo groupadd docker
-groupadd: group 'docker' already exists
-ubuntu@master:~$ sudo gpasswd -a ubuntu docker
-Adding user ubuntu to group docker
-ubuntu@master:~$ sudo service docker restart
-ubuntu@master:~$ sudo vim /etc/docker/daemon.json
-
-{ "registry-mirrors": [
-    "https://hkaofvr0.mirror.aliyuncs.com"
-  ]
- }
-
-ubuntu@master:~$ sudo systemctl daemon-reload
-ubuntu@master:~$ sudo systemctl restart docker
-# 重启 iTerm2
-ubuntu@node1:~$ exit
-logout
-➜  ~ multipass shell node1
-
-ubuntu@master:~$ docker info
-
- Registry Mirrors:
-  https://hkaofvr0.mirror.aliyuncs.com/
-
-# Install Compose on Linux systems
-
-sudo apt install docker-compose -y
-
-ubuntu@master:~$ sudo curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-
-ubuntu@master:~$ sudo chmod +x /usr/local/bin/docker-compose
-ubuntu@master:~$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-ubuntu@master:~$ docker-compose --version
-
-Docker Compose version v2.0.1
-
-
-```
-
-
-**无法使用 swarm**
+**snap 安装docker无法使用 swarm**
 ```shell
 # 无法使用 swarm: mkdir /var/lib/docker: read-only file system
 ubuntu@master:~$ sudo snap install docker

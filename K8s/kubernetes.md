@@ -2,6 +2,125 @@
 
 
 
+**使用multipass搭建k8s多节点集群和Dashboard**
+
+```shell
+multipass launch -n master -c 1 -m 3G -d 20G
+multipass launch -n node1 -c 1 -m 3G -d 20G
+multipass launch -n node2 -c 1 -m 3G -d 20G
+
+
+ubuntu@node1:~$ microk8s.enable registry:size=40G
+Addon registry is already enabled.
+
+➜  ~ multipass list
+Name                    State             IPv4             Image
+master                  Running           192.168.105.5    Ubuntu 20.04 LTS
+node1                   Running           192.168.105.6    Ubuntu 20.04 LTS
+node2                   Running           192.168.105.7    Ubuntu 20.04 LTS
+
+ubuntu@node1:~$ sudo mv /etc/apt/sources.list /etc/apt/sources.list.bak
+ubuntu@node1:~$ sudo vim /etc/apt/sources.list
+
+# ubuntu 20.04(focal) 配置如下
+deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+
+
+ubuntu@master:~$ sudo apt-get update && sudo apt-get upgrade -y
+
+```
+
+
+
+
+
+**Ubuntu 安装 Docker**
+
+
+
+```shell
+# 使用官方安装脚本自动安装
+ubuntu@master:~$ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+
+ubuntu@master:~$ docker images
+Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/images/json": dial unix /var/run/docker.sock: connect: permission denied
+
+ubuntu@master:~$ sudo groupadd docker
+groupadd: group 'docker' already exists
+ubuntu@master:~$ sudo gpasswd -a ubuntu docker
+Adding user ubuntu to group docker
+ubuntu@master:~$ sudo service docker restart
+ubuntu@master:~$ sudo vim /etc/docker/daemon.json
+
+{ "registry-mirrors": [
+    "https://hkaofvr0.mirror.aliyuncs.com"
+  ]
+ }
+
+ubuntu@master:~$ sudo systemctl daemon-reload
+ubuntu@master:~$ sudo systemctl restart docker
+# 重启 iTerm2
+ubuntu@node1:~$ exit
+logout
+➜  ~ multipass shell node1
+
+ubuntu@master:~$ docker info
+
+ Registry Mirrors:
+  https://hkaofvr0.mirror.aliyuncs.com/
+
+# Install Compose on Linux systems
+
+sudo apt install docker-compose -y
+
+ubuntu@master:~$ sudo curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+ubuntu@master:~$ sudo chmod +x /usr/local/bin/docker-compose
+ubuntu@master:~$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+ubuntu@master:~$ docker-compose --version
+
+Docker Compose version v2.0.1
+
+
+```
+
+```shell
+sudo apt-get update && sudo apt-get upgrade -y
+
+
+sudo apt-get dist-upgrade -y
+```
+
+
+**root设置**
+```shell
+ubuntu@master:~$ sudo passwd root
+ubuntu@master:~$ sudo passwd -dl root
+
+ubuntu@master:~$ su root
+Password:
+root@master:/home/ubuntu#
+
+root@master:/home/ubuntu# su ubuntu
+ubuntu@master:~$
+```
+
+
+
+
 **Ubuntu 安装 Docker**
 
 
@@ -249,9 +368,11 @@ Events:
   Normal   Pulling    94s (x3 over 3m25s)    kubelet            Pulling image "k8s.gcr.io/metrics-server/metrics-server:v0.5.0"
 ```
 
-
-
-
+```shell
+由于网络问题会导致相关镜像下载失败，我们通常会使用VPN进行镜像下载，这里提供一个无需VPN的配置方式，
+在/etc/hosts中添加以下内容：
+172.217.197.82   k8s.gcr.io
+```
 
 
 ```shell
@@ -384,6 +505,182 @@ NAME     STATUS   ROLES    AGE     VERSION
 master   Ready    <none>   3h17m   v1.22.2-3+9ad9ee77396805
 node1    Ready    <none>   34m     v1.22.2-3+9ad9ee77396805
 node2    Ready    <none>   27m     v1.22.2-3+9ad9ee77396805
+
+
+
+
+multipass exec master -- sudo /snap/bin/microk8s kubectl port-forward -n kube-system service/kubernetes-dashboard 10443:443 --address 0.0.0.0
+
+
+
+
+ubuntu@master:~$ vim pod_nginx.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+
+
+
+
+
+
+
+
+ubuntu@master:~$ sudo kubectl get pods -o wide
+NAME    READY   STATUS    RESTARTS   AGE   IP             NODE    NOMINATED NODE   READINESS GATES
+nginx   1/1     Running   0          29m   10.1.166.130   node1   <none>           <none>
+
+
+
+ubuntu@master:~$ sudo kubectl describe pods nginx
+Name:         nginx
+Namespace:    default
+Priority:     0
+Node:         node1/192.168.105.6
+Start Time:   Sun, 31 Oct 2021 18:35:58 +0800
+Labels:       app=nginx
+Annotations:  cni.projectcalico.org/podIP:
+              cni.projectcalico.org/podIPs:
+Status:       Running
+IP:           10.1.166.130
+IPs:
+  IP:  10.1.166.130
+Containers:
+  nginx:
+    Container ID:   containerd://fe8c7412fee20b1e6863b4a068b95791b387f4213e04cd1f3c031fe555e8ac8e
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:644a70516a26004c97d0d85c7fe1d0c3a67ea8ab7ddf4aff193d9f301670cf36
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sun, 31 Oct 2021 18:44:25 +0800
+    Ready:          True
+
+
+
+➜  demo cat rc_nginx.yaml
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx # 随机产生一个名字
+spec:
+  replicas: 3 # 创建三个副本，也就是三个pod
+  selector:
+    app: nginx
+  template: # 这个就是在定义一个pod
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80 # 暴露80端口
+
+
+ubuntu@master:~$ sudo kubectl create -f rc_nginx.yaml
+replicationcontroller/nginx created
+
+
+
+
+ubuntu@master:~$ sudo kubectl get rc
+NAME    DESIRED   CURRENT   READY   AGE
+nginx   3         3         0       2m19s
+ubuntu@master:~$ sudo kubectl get pods
+NAME          READY   STATUS              RESTARTS        AGE
+nginx         1/1     Running             3 (3m53s ago)   15h
+nginx-vxd9w   0/1     ContainerCreating   0               69s
+nginx-x8s4t   0/1     ContainerCreating   0               63s
+
+
+
+
+ubuntu@master:~$ sudo kubectl delete pods nginx-x8s4t
+pod "nginx-x8s4t" deleted
+ubuntu@master:~$ sudo kubectl get rc
+NAME    DESIRED   CURRENT   READY   AGE
+nginx   3         3         3       5m44s
+ubuntu@master:~$ sudo kubectl get pods
+NAME          READY   STATUS    RESTARTS       AGE
+nginx         1/1     Running   3 (7m1s ago)   15h
+nginx-vxd9w   1/1     Running   0              4m17s
+nginx-jfbhz   1/1     Running   0              21s
+
+
+ubuntu@master:~$ sudo kubectl scale rc nginx --replicas=2
+replicationcontroller/nginx scaled
+ubuntu@master:~$ sudo kubectl get pods
+NAME          READY   STATUS    RESTARTS        AGE
+nginx         1/1     Running   3 (9m38s ago)   15h
+nginx-vxd9w   1/1     Running   0               6m54s
+
+ubuntu@master:~$ sudo kubectl get rc
+NAME    DESIRED   CURRENT   READY   AGE
+nginx   2         2         2       8m54s
+
+ubuntu@master:~$ sudo kubectl scale rc nginx --replicas=3
+replicationcontroller/nginx scaled
+ubuntu@master:~$ sudo kubectl get rc
+NAME    DESIRED   CURRENT   READY   AGE
+nginx   3         3         2       17m
+ubuntu@master:~$ sudo kubectl get pods
+NAME          READY   STATUS              RESTARTS      AGE
+nginx-vxd9w   1/1     Running             0             15m
+nginx         1/1     Running             3 (18m ago)   16h
+nginx-65c4h   0/1     ContainerCreating   0             6s
+
+
+ubuntu@master:~$ sudo kubectl get pods -o wide
+NAME          READY   STATUS    RESTARTS      AGE   IP             NODE    NOMINATED NODE   READINESS GATES
+nginx-vxd9w   1/1     Running   0             16m   10.1.104.1     node2   <none>           <none>
+nginx         1/1     Running   3 (19m ago)   16h   10.1.166.133   node1   <none>           <none>
+nginx-65c4h   1/1     Running   0             47s   10.1.166.136   node1   <none>           <none>
+
+ubuntu@master:~$ sudo kubectl delete -f rc_nginx.yaml
+replicationcontroller "nginx" deleted
+ubuntu@master:~$ sudo kubectl get pods
+NAME          READY   STATUS        RESTARTS      AGE
+nginx-vxd9w   1/1     Terminating   0             19m
+nginx         1/1     Terminating   3 (22m ago)   16h
+nginx-65c4h   1/1     Terminating   0             3m49s
+
+
+ubuntu@master:~$ cat rc_nginx.yaml
+apiVersion: apps/v1
+kind: ReplicationController
+metadata:
+  name: nginx # 随机产生一个名字
+spec:
+  replicas: 3 # 创建三个副本，也就是三个pod
+  selector:
+    app: nginx
+  template: # 这个就是在定义一个pod
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80 # 暴露80端口
+
+
 
 
 
