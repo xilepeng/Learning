@@ -1,9 +1,16 @@
 
 docker redis
 ```bash
-docker exec -it redis /bin/bash
-root@74db1bab4c23:/data# redis-cli
+
+➜  ~ docker pull redis
+
+➜  ~ docker run -itd --name redis -p 6379:6379 redis
+
+➜  ~ docker exec -it redis /bin/bash
+
+root@03ac20e1c401:/data# redis-cli
 127.0.0.1:6379>
+
 ```
 
 
