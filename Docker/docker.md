@@ -424,6 +424,15 @@ ubuntu@node2:~$ sudo vim /etc/hosts
 ⌘(command) + ⇧(shift) + i  
 会弹出告警信息，点OK确认。  关闭其实也很简单。再次输入刚刚打开的那个命令就行了。
 
+```
+
+
+```go
+
+# 关闭防火墙
+systemctl stop firewalld
+systemctl disable firewalld
+
 # 关闭防火墙
 ubuntu@master:~$ sudo apt-get install ufw
 
@@ -431,6 +440,13 @@ ubuntu@master:~$ sudo ufw disable
 Firewall stopped and disabled on system startup
 ubuntu@master:~$ sudo ufw status
 Status: inactive
+
+
+# 关闭selinux
+
+setenforce 0
+
+cat /etc/selinux/config
 
 # 关闭selinux
 
@@ -443,12 +459,18 @@ SELINUX=disabled
 ubuntu@master:~$ sudo sed -ri 's/.*swap.*/#&/' /etc/fstab
 
 
-# 将桥接的IPv4流量传递到iptables的链
-ubuntu@master:~$ sudo vim /etc/sysctl.d/k8s.conf
- 
+# 开启路由转发
+
+vim /etc/sysctl.d/k8s.conf
+
+
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
 
+
+# 生效
+sysctl -p /etc/sysctl.d/k8s.conf
 
 # 生效
 ubuntu@master:~$ sudo sysctl --system
@@ -459,9 +481,7 @@ ubuntu@master:~$ sudo timedatectl set-timezone Asia/Shanghai
 
 
 ubuntu@master:~$ sudo apt-get update
-ubuntu@master:~$ sudo apt-get install virtualbox -y
 ```
-
 
 
 
