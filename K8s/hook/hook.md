@@ -26,5 +26,17 @@ No resources found in default namespace.
 
 
 
+ubuntu@master:~$ kubectl apply -f pod-hook2.yaml
+pod/hook-demo2 created
+ubuntu@master:~$ kubectl get pods
+NAME               READY   STATUS    RESTARTS   AGE
+hook-demo2         1/1     Running   0          16m
+static-pod-node1   1/1     Running   0          33m
+
+
+
+ubuntu@master:~$ kubectl delete -f pod-hook2.yaml
+pod "hook-demo2" deleted
+
 ```
 
