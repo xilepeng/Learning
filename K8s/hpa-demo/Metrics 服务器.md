@@ -26,4 +26,48 @@ ubuntu@master:/etc/kubernetes/manifests$ sudo vim kube-controller-manager.yaml
 
 
 
+
+metrics-server-helm-chart-3.7.0
+
+
+
 ```
+
+
+
+```go
+删除默认的源
+
+
+
+✅微软仓库
+helm repo add stable http://mirror.azure.cn/kubernetes/charts/
+
+国内镜像源
+helm repo add stable https://burdenbear.github.io/kube-charts-mirror/
+阿里云仓库
+helm repo add stable https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
+
+helm repo update
+
+helm env
+
+查看helm源添加情况
+
+helm repo list
+
+
+helm install stable/redis --generate-name
+
+```
+
+
+
+
+```go
+
+
+
+```
+
+
