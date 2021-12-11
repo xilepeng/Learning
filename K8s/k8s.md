@@ -184,6 +184,8 @@ ubuntu@master:~$ kubeadm config images pull --image-repository=registry.aliyuncs
 
 
 
+
+
 ubuntu@master:~$ docker images
 REPOSITORY                                                        TAG       IMAGE ID       CREATED        SIZE
 registry.aliyuncs.com/google_containers/kube-apiserver            v1.22.4   8a5cc299272d   13 days ago    128MB
@@ -219,9 +221,15 @@ docker tag k8s.gcr.io/coredns:v1.8.4 k8s.gcr.io/coredns/coredns:v1.8.4
 docker rmi k8s.gcr.io/coredns:v1.8.4
 
 
+docker pull registry.aliyuncs.com/google_containers/metrics-server:v0.5.2
+docker tag registry.aliyuncs.com/google_containers/metrics-server:v0.5.2 k8s.gcr.io/metrics-server/metrics-server:v0.5.2
+docker rmi registry.aliyuncs.com/google_containers/metrics-server:v0.5.2 
 
 
 
+docker pull registry.aliyuncs.com/google_containers/dashboard:v2.4.0
+docker tag registry.aliyuncs.com/google_containers/dashboard:v2.4.0 kubernetesui/dashboard:v2.4.0
+docker rmi registry.aliyuncs.com/google_containers/dashboard:v2.4.0
 
 ubuntu@master:~$ docker images
 REPOSITORY                           TAG       IMAGE ID       CREATED        SIZE
@@ -466,10 +474,15 @@ systemctl status docker
 
 sudo kubeadm reset
 
-sudo rm -rf /etc/kubernetes/manifests/kube-apiserver.yaml
-sudo rm -rf /etc/kubernetes/manifests/kube-controller-manager.yaml
-sudo rm -rf /etc/kubernetes/manifests/kube-scheduler.yaml
-sudo rm -rf /etc/kubernetes/manifests/etcd.yaml
+sudo rm -rf /etc/kubernetes/manifests/*
+
+// sudo rm -rf /etc/kubernetes/manifests/kube-apiserver.yaml
+// sudo rm -rf /etc/kubernetes/manifests/kube-controller-manager.yaml
+// sudo rm -rf /etc/kubernetes/manifests/kube-scheduler.yaml
+// sudo rm -rf /etc/kubernetes/manifests/etcd.yaml
+
+
+
 sudo rm -rf /var/lib/etcd
 
 sudo rm -rf $HOME/.kube/config
@@ -482,8 +495,40 @@ sudo kubeadm init --kubernetes-version=v1.22.4 --pod-network-cidr=10.244.0.0/16 
 
 
 
+```go
+Your Kubernetes control-plane has initialized successfully!
 
+To start using your cluster, you need to run the following as a regular user:
 
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 192.168.105.5:6443 --token aa6qzi.9skp3xnenjvuscwg \
+	--discovery-token-ca-cert-hash sha256:e63c4624ddee1d802f37cc05632aecf9eca3af88d682a2516606f87d25bda8b7
+
+```
+
+## node1
+```go
+sudo kubeadm reset
+sudo rm -rf /etc/kubernetes/manifests/*
+sudo rm -rf /var/lib/etcd
+sudo rm -rf $HOME/.kube/config
+
+kubeadm join 192.168.105.5:6443 --token aa6qzi.9skp3xnenjvuscwg \
+	--discovery-token-ca-cert-hash sha256:e63c4624ddee1d802f37cc05632aecf9eca3af88d682a2516606f87d25bda8b7
+```
 
 
 ## 在Docker中下载并运行Jenkins （在macOS和Linux上）
@@ -573,15 +618,29 @@ kube-system            kube-scheduler-master                       1/1     Runni
 kubernetes-dashboard   dashboard-metrics-scraper-c45b7869d-xhr24   1/1     Running   0             3h42m
 kubernetes-dashboard   kubernetes-dashboard-576cb95f94-kdts4       1/1     Running   0             3h42m
 
+root@master:/home/ubuntu# kubectl get pods --all-namespaces
+NAMESPACE              NAME                                        READY   STATUS    RESTARTS       AGE
+kube-system            coredns-78fcd69978-bpljs                    1/1     Running   0              5h8m
+kube-system            coredns-78fcd69978-t4slw                    1/1     Running   0              5h8m
+kube-system            etcd-master                                 1/1     Running   0              5h8m
+kube-system            kube-apiserver-master                       1/1     Running   0              5h8m
+kube-system            kube-controller-manager-master              1/1     Running   3 (139m ago)   3h41m
+kube-system            kube-flannel-ds-8vsms                       1/1     Running   0              4h44m
+kube-system            kube-flannel-ds-rp96q                       1/1     Running   0              4h44m
+kube-system            kube-proxy-975pb                            1/1     Running   0              5h8m
+kube-system            kube-proxy-kv488                            1/1     Running   0              4h55m
+kube-system            kube-scheduler-master                       1/1     Running   4 (26m ago)    3h41m
+kubernetes-dashboard   dashboard-metrics-scraper-c45b7869d-6z6df   1/1     Running   0              3h44m
+kubernetes-dashboard   kubernetes-dashboard-576cb95f94-7lv7g       1/1     Running   0              3h44m
 
-root@node1:~# kubectl get service -n kubernetes-dashboard
-NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE
-dashboard-metrics-scraper   ClusterIP   10.101.186.25   <none>        8000/TCP        3h44m
-kubernetes-dashboard        NodePort    10.107.59.8     <none>        443:31996/TCP   3h44m
+
+root@master:/home/ubuntu# kubectl get service -n kubernetes-dashboard
+NAME                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
+dashboard-metrics-scraper   ClusterIP   10.106.241.133   <none>        8000/TCP        4h15m
+kubernetes-dashboard        NodePort    10.105.201.93    <none>        443:31447/TCP   4h15m
 
 
-
-root@node1:~# kubectl describe svc kubernetes-dashboard -n kubernetes-dashboard
+root@master:/home/ubuntu# kubectl describe svc kubernetes-dashboard -n kubernetes-dashboard
 Name:                     kubernetes-dashboard
 Namespace:                kubernetes-dashboard
 Labels:                   k8s-app=kubernetes-dashboard
@@ -590,19 +649,35 @@ Selector:                 k8s-app=kubernetes-dashboard
 Type:                     NodePort
 IP Family Policy:         SingleStack
 IP Families:              IPv4
-IP:                       10.107.59.8
-IPs:                      10.107.59.8
+IP:                       10.105.201.93
+IPs:                      10.105.201.93
 Port:                     <unset>  443/TCP
 TargetPort:               8443/TCP
-NodePort:                 <unset>  31996/TCP
-Endpoints:                10.244.1.3:8443
+NodePort:                 <unset>  31447/TCP
+Endpoints:                10.244.1.2:8443
 Session Affinity:         None
 External Traffic Policy:  Cluster
 Events:                   <none>
+
+
+root@master:/home/ubuntu# kubectl get pods --all-namespaces -o wide
+NAMESPACE              NAME                                        READY   STATUS    RESTARTS       AGE     IP              NODE     NOMINATED NODE   READINESS GATES
+kube-system            coredns-78fcd69978-bpljs                    1/1     Running   0              5h39m   10.244.0.2      master   <none>           <none>
+kube-system            coredns-78fcd69978-t4slw                    1/1     Running   0              5h39m   10.244.0.3      master   <none>           <none>
+kube-system            etcd-master                                 1/1     Running   0              5h40m   192.168.105.5   master   <none>           <none>
+kube-system            kube-apiserver-master                       1/1     Running   0              5h40m   192.168.105.5   master   <none>           <none>
+kube-system            kube-controller-manager-master              1/1     Running   3 (170m ago)   4h13m   192.168.105.5   master   <none>           <none>
+kube-system            kube-flannel-ds-8vsms                       1/1     Running   0              5h15m   192.168.105.6   node1    <none>           <none>
+kube-system            kube-flannel-ds-rp96q                       1/1     Running   0              5h15m   192.168.105.5   master   <none>           <none>
+kube-system            kube-proxy-975pb                            1/1     Running   0              5h39m   192.168.105.5   master   <none>           <none>
+kube-system            kube-proxy-kv488                            1/1     Running   0              5h27m   192.168.105.6   node1    <none>           <none>
+kube-system            kube-scheduler-master                       1/1     Running   4 (57m ago)    4h12m   192.168.105.5   master   <none>           <none>
+kubernetes-dashboard   dashboard-metrics-scraper-c45b7869d-6z6df   1/1     Running   0              4h15m   10.244.1.3      node1    <none>           <none>
+kubernetes-dashboard   kubernetes-dashboard-576cb95f94-7lv7g       1/1     Running   0              4h15m   10.244.1.2      node1    <none>           <none>
 ```
 
 
-https://192.168.105.6:31996
+https://192.168.105.6:31447
 
 
 root@node1:~# vim admin-account.yaml
@@ -635,56 +710,56 @@ subjects:
 
 
 ```go
+从 master 拷贝到 node01
+sudo vim /etc/kubernetes/admin.conf
+
+
 
 root@node1:~# kubectl apply -f admin-account.yaml
 serviceaccount/admin created
 clusterrolebinding.rbac.authorization.k8s.io/admin created
 
-
-root@node1:~# kubectl get serviceaccount -n kubernetes-dashboard
+ubuntu@node1:~$ kubectl get serviceaccount -n kubernetes-dashboard
 NAME                   SECRETS   AGE
-admin                  1         71s
-default                1         4h34m
-kubernetes-dashboard   1         4h34m
-
-
-root@node1:~# kubectl describe serviceaccount admin -n kubernetes-dashboard
+admin                  1         2m22s
+default                1         4h43m
+kubernetes-dashboard   1         4h43m
+ubuntu@node1:~$ kubectl describe serviceaccount admin -n kubernetes-dashboard
 Name:                admin
 Namespace:           kubernetes-dashboard
 Labels:              k8s-app=kubernetes-dashboard
 Annotations:         <none>
 Image pull secrets:  <none>
-Mountable secrets:   admin-token-4x6nk
-Tokens:              admin-token-4x6nk
+Mountable secrets:   admin-token-crqbj
+Tokens:              admin-token-crqbj
 Events:              <none>
-
-
-
-root@node1:~# kubectl get secret -n kubernetes-dashboard
+ubuntu@node1:~$ kubectl get secret -n kubernetes-dashboard
 NAME                               TYPE                                  DATA   AGE
-admin-token-4x6nk                  kubernetes.io/service-account-token   3      4m50s
-default-token-l6mdd                kubernetes.io/service-account-token   3      4h37m
-kubernetes-dashboard-certs         Opaque                                0      4h37m
-kubernetes-dashboard-csrf          Opaque                                1      4h37m
-kubernetes-dashboard-key-holder    Opaque                                2      4h37m
-kubernetes-dashboard-token-mqsn8   kubernetes.io/service-account-token   3      4h37m
-
-
-root@node1:~# kubectl describe secret admin-token-4x6nk -n kubernetes-dashboard
-Name:         admin-token-4x6nk
+admin-token-crqbj                  kubernetes.io/service-account-token   3      3m6s
+default-token-9wz6h                kubernetes.io/service-account-token   3      4h44m
+kubernetes-dashboard-certs         Opaque                                0      4h44m
+kubernetes-dashboard-csrf          Opaque                                1      4h44m
+kubernetes-dashboard-key-holder    Opaque                                2      4h44m
+kubernetes-dashboard-token-gcxkl   kubernetes.io/service-account-token   3      4h44m
+ubuntu@node1:~$ kubectl describe secret admin-token-crqbj -n kubernetes-dashboard
+Name:         admin-token-crqbj
 Namespace:    kubernetes-dashboard
 Labels:       <none>
 Annotations:  kubernetes.io/service-account.name: admin
-              kubernetes.io/service-account.uid: f74424ed-f98f-49eb-b170-7846ca815fc7
+              kubernetes.io/service-account.uid: 572f0385-6163-4953-8bb1-a599424c5565
 
 Type:  kubernetes.io/service-account-token
 
 Data
 ====
-ca.crt:     1099 bytes
 namespace:  20 bytes
-token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IlgzSFJwa1VFZnNUZ3R2Wnk1YUZlUVdwdTFqeXJNM2RHY1RkOXNuNVJSMU0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi10b2tlbi00eDZuayIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJhZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImY3NDQyNGVkLWY5OGYtNDllYi1iMTcwLTc4NDZjYTgxNWZjNyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbiJ9.vtHqmnKIU_Vfe1_PDuXga4y0Xe1N5mkA-gUhD398V77_pYIyKqAWwLhaM7JdDRI5f_EsIAP3UcOkhf2pIBZ4jAlKYi-Ad908y-7zheVoyW_RBCMRZ1dGpMjYwYxGhCmTRAO1Z7EGajqz8DDAhXryCO3qdJ7AkesfY4fHPwtSaLiXr5K4088MI-nDcb8zPblaDQM9io2qEAaf45-lNA8754NCOyZ-KKpL0XLSwijgOC-EV973lAeZs7uOG0LI2xDNGN-mHNiCy5ccXS7UIrqd76_jPGGqinPXJVAD7KMYRE_VDUHPIZ9dfCFn_Wcfh_imkuamZE-78be6Vak2N0iPUA
+token:      
 
+eyJhbGciOiJSUzI1NiIsImtpZCI6Il8zMTBqZXlMekRxZHBYcjNzNHdLVzRzTmxkdWkxZmpDcm5TQnVSRGFBUDQifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi10b2tlbi1jcnFiaiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJhZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjU3MmYwMzg1LTYxNjMtNDk1My04YmIxLWE1OTk0MjRjNTU2NSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbiJ9.t2kbc3mbSqI0Ox42VqGctZsTqQLBTAat6Pp-d4t6pKtii6q9xzbRcp62-r1eLMpkTKpsA1Q2k5ebG_LIhovJ2QCvHwt8Cnt2DS0I69icC3ffx1akrGJayiF-LazMxDS5THn3Cok7A7lthMhMPBHbR1N0P46hPEpWCd7coe8LnOK5l2fbrSjVCGkqH1-P8s-VmS73EGyGgfqXvf8ZB_HdRrTvrsLZS5TdZJukPCk0QaNavSOHuEay-Q-IGNsD5razc1-Kx7VZ_8TPfTVRwKWoC02Ur2fBSOTEprHmE36tMuL35Dmf7KLPaJ2P6nAN8w4kS5UOC2C1rkQ-W2wIMmqV7w
+
+
+
+ca.crt:     1099 bytes
 
 
 ```
