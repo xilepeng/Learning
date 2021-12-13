@@ -351,10 +351,165 @@ ubuntu@master:/etc/kubernetes/manifests$ ls
 etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
 ubuntu@master:/etc/kubernetes/manifests$ sudo vim kube-controller-manager.yaml
 
+
+# 没安装 metrics-server临时设置
 - --horizontal-pod-autoscaler-use-rest-clients=false
 
+# 永久、安装 metrics-server
+
+
+ubuntu@master:~$ kubectl get hpa
+NAME       REFERENCE             TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+hpa-demo   Deployment/hpa-demo   0%/5%     1         10        1          64m
+
+ubuntu@master:~$ kubectl describe hpa hpa-demo
+Name:                                                  hpa-demo
+Namespace:                                             default
+Labels:                                                <none>
+Annotations:                                           <none>
+CreationTimestamp:                                     Mon, 13 Dec 2021 10:08:36 +0800
+Reference:                                             Deployment/hpa-demo
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  0% (0) / 5%
+Min replicas:                                          1
+Max replicas:                                          10
+Deployment pods:                                       1 current / 1 desired
+Conditions:
+  Type            Status  Reason            Message
+  ----            ------  ------            -------
+  AbleToScale     True    ReadyForNewScale  recommended size matches current size
+  ScalingActive   True    ValidMetricFound  the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  True    TooFewReplicas    the desired replica count is less than the minimum replica count
+Events:           <none>
 
 
 
 
+ubuntu@master:~$ kubectl run -i --tty test-hpa --image=busybox /bin/sh
+
+/ # while true; do wget -q -O- http://10.244.1.6; done
+
+
+ubuntu@master:~$ kubectl get hpa
+NAME       REFERENCE             TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+hpa-demo   Deployment/hpa-demo   0%/5%     1         10        1          115m
+ubuntu@master:~$ kubectl get hpa
+NAME       REFERENCE             TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+hpa-demo   Deployment/hpa-demo   137%/5%   1         10        4          116m
+
+# 删除 test-hpa后、自动缩容
+
+
+ubuntu@master:~$ kubectl get hpa
+NAME       REFERENCE             TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+hpa-demo   Deployment/hpa-demo   0%/5%     1         10        1          123m
+
+
+
+
+ubuntu@master:~$ kubectl get hpa hpa-demo -o yaml
+```
+
+``` yaml
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  annotations:
+    autoscaling.alpha.kubernetes.io/conditions: '[{"type":"AbleToScale","status":"True","lastTransitionTime":"2021-12-13T02:08:52Z","reason":"ReadyForNewScale","message":"recommended
+      size matches current size"},{"type":"ScalingActive","status":"True","lastTransitionTime":"2021-12-13T02:08:52Z","reason":"ValidMetricFound","message":"the
+      HPA was able to successfully calculate a replica count from cpu resource utilization
+      (percentage of request)"},{"type":"ScalingLimited","status":"True","lastTransitionTime":"2021-12-13T04:12:18Z","reason":"TooFewReplicas","message":"the
+      desired replica count is less than the minimum replica count"}]'
+    autoscaling.alpha.kubernetes.io/current-metrics: '[{"type":"Resource","resource":{"name":"cpu","currentAverageUtilization":0,"currentAverageValue":"0"}}]'
+  creationTimestamp: "2021-12-13T02:08:36Z"
+  name: hpa-demo
+  namespace: default
+  resourceVersion: "64973"
+  uid: b16e5841-964e-47f2-9ee0-ee4716229ab5
+spec:
+  maxReplicas: 10
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hpa-demo
+  targetCPUUtilizationPercentage: 5
+status:
+  currentCPUUtilizationPercentage: 0
+  currentReplicas: 1
+  desiredReplicas: 1
+  lastScaleTime: "2021-12-13T04:12:18Z"
+```
+
+
+
+``` yaml
+ubuntu@master:~$ cat hpa-demo.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hpa-demo
+  labels:
+    app: hpa
+spec:
+  revisionHistoryLimit: 15
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        resources:
+          requests:
+            cpu: 100m
+          # limit:
+          #   cpu: 200m
+        ports:
+        - containerPort: 80
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hpa-demo
+  namespace: default
+spec:
+  maxReplicas: 10
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: extensions/v1
+    kind: Deployment
+    name: hpa-demo
+  targetCPUUtilizationPercentage: 5
+
+
+
+ubuntu@master:~$ kubectl delete hpa hpa-demo
+horizontalpodautoscaler.autoscaling "hpa-demo" deleted
+
+ubuntu@master:~$ kubectl apply -f hpa-demo.yaml
+
+Warning: resource deployments/hpa-demo is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+deployment.apps/hpa-demo configured
+horizontalpodautoscaler.autoscaling/hpa-demo created
+
+
+ubuntu@master:~$ kubectl get deployment
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+hpa-demo   1/1     1            1           3h33m
+ubuntu@master:~$ kubectl get hpa
+NAME       REFERENCE             TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
+hpa-demo   Deployment/hpa-demo   <unknown>/5%   1         10        0          63s
 ```
