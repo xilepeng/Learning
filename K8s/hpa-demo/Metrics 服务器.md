@@ -1,42 +1,7 @@
 
 
-```go
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
 
-
-```go
-ubuntu@master:~$ vim hpa-demo.yaml
-ubuntu@master:~$ kubectl create -f hpa-demo.yaml
-deployment.apps/hpa-demo created
-
-ubuntu@master:~$ kubectl get deploy
-NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-hpa-demo   1/1     1            1           69s
-
-ubuntu@master:~$ kubectl autoscale deployment hpa-demo --min=1 --max=10 --cpu-percent=5
-horizontalpodautoscaler.autoscaling/hpa-demo autoscaled
-
-ubuntu@master:~$ cd /etc/kubernetes/manifests
-ubuntu@master:/etc/kubernetes/manifests$ ls
-etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
-ubuntu@master:/etc/kubernetes/manifests$ sudo vim kube-controller-manager.yaml
-
-- --horizontal-pod-autoscaler-use-rest-clients=false
-
-
-
-
-
-
-
-
-
-
-```
-
-
-
+## helm
 ```go
 删除默认的源
 
@@ -74,8 +39,19 @@ sudo vim /etc/kubernetes/manifests/kube-apiserver.yaml
 
 ```
 
+```go
+https://github.com/kubernetes-sigs/metrics-server
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+
+https://artifacthub.io/packages/helm/metrics-server/metrics-server
 
 https://github.com/kubernetes-sigs/metrics-server/releases/download/metrics-server-helm-chart-3.7.0/components.yaml
+```
+
+
+
 
 vim components.yaml
 
@@ -350,3 +326,35 @@ kubernetes-dashboard   kubernetes-dashboard-576cb95f94-7lv7g       1/1     Runni
 
 ```
 
+
+
+
+
+
+
+
+
+```go
+ubuntu@master:~$ vim hpa-demo.yaml
+ubuntu@master:~$ kubectl create -f hpa-demo.yaml
+deployment.apps/hpa-demo created
+
+ubuntu@master:~$ kubectl get deploy
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+hpa-demo   1/1     1            1           69s
+
+ubuntu@master:~$ kubectl autoscale deployment hpa-demo --min=1 --max=10 --cpu-percent=5
+horizontalpodautoscaler.autoscaling/hpa-demo autoscaled
+
+ubuntu@master:~$ cd /etc/kubernetes/manifests
+ubuntu@master:/etc/kubernetes/manifests$ ls
+etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
+ubuntu@master:/etc/kubernetes/manifests$ sudo vim kube-controller-manager.yaml
+
+- --horizontal-pod-autoscaler-use-rest-clients=false
+
+
+
+
+
+```
