@@ -25,3 +25,4 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
+          name: nginxweb
