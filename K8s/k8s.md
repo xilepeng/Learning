@@ -212,6 +212,8 @@ images=(  # 下面的镜像应该去除"k8s.gcr.io/"的前缀，版本换成上�
 )
 
 
+
+
 for imageName in ${images[@]} ; do
     docker tag registry.aliyuncs.com/google_containers/$imageName k8s.gcr.io/$imageName
     docker rmi registry.aliyuncs.com/google_containers/$imageName
