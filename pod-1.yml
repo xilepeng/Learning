@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: pod-1
+  name: pod-1
+  namespace: default
+spec:
+  containers:
+    - image: debian
+      name: debian

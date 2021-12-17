@@ -1,0 +1,7 @@
+files:
+  - loader: k8s
+    path: pod-1.yml
+  - loader: k8s
+    path: pod-2.yml
+nodes: []
+version: '1'
