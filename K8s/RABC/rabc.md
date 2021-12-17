@@ -88,4 +88,17 @@ NAME                                             CREATED AT
 hfbpw-role                                       2021-12-16T14:49:39Z
 hfbpw-sa-role                                    2021-12-17T04:44:01Z
 
+
+ubuntu@master:~/certs/serviceaccount$ vim hfbpw-sa-rolebinding.yaml
+ubuntu@master:~/certs/serviceaccount$ kubectl create -f hfbpw-sa-rolebinding.yaml
+rolebinding.rbac.authorization.k8s.io/hfbpw-sa-rolebinding created
+ubuntu@master:~/certs/serviceaccount$ kubectl get rolebinding -n kube-system
+NAME                                                ROLE                                                  AGE
+hfbpw-rolebinding                                   Role/hfbpw-role                                       125m
+hfbpw-sa-rolebinding                                Role/hfbpw-sa-role                                    43s
+
+
+
+
+
 ```
