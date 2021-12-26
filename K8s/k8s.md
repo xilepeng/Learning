@@ -369,6 +369,12 @@ vim recommended.yaml
 chrome下载到本地：
 https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
 
+
+
+
+
+
+
 ```
 
 ## ## node1 加入集群
