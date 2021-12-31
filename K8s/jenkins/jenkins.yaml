@@ -1,0 +1,88 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: jenkins
+ namespace: kube-ops
+spec:
+ selector:
+  matchLabels:
+   app: jenkins
+ template:
+   metadata:
+     labels:
+       app: jenkins
+   spec:
+     terminationGracePeriodSeconds: 10
+     containers:
+     - name: jenkins
+       image: jenkins/jenkins:lts
+       securityContext:
+         runAsUser: 0
+       imagePullPolicy: IfNotPresent
+       ports:
+       - containerPort: 31000
+         name: web
+         protocol: TCP
+       - containerPort: 31001
+         name: agent
+         protocol: TCP
+       resources:
+         limits:
+           cpu: 1000m
+           memory: 1Gi
+         requests:
+           cpu: 500m
+           memory: 512Mi
+       livenessProbe:
+         httpGet:
+           path: /login
+           port: 31000
+         initialDelaySeconds: 60
+         timeoutSeconds: 5
+         failureThreshold: 12
+       readinessProbe:
+         httpGet:
+           path: /login
+           port: 31000
+         initialDelaySeconds: 60
+         timeoutSeconds: 5
+         failureThreshold: 12
+       volumeMounts:
+       - name: jenkinshome
+         subPath: jenkins
+         mountPath: /var/jenkins_home
+       env:
+       - name: LIMITS_MEMORY
+         valueFrom:
+           resourceFieldRef:
+             resource: limits.memory
+             divisor: 1Mi
+       - name: JAVA_OPTS
+         value: -Xmx$(LIMITS_MEMORY)m -XshowSettings:vm -Dhudson.slaves.NodeProvisioner.initialDelay=0 -Dhudson.slaves.NodeProvisioner.MARGIN=50 -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85 -Duser.timezone=Asia/Shanghai
+     securityContext:
+       fsGroup: 1000
+     volumes:
+     - name: jenkinshome
+       persistentVolumeClaim:
+         claimName: opspvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+ name: jenkins
+ namespace: kube-ops
+ labels:
+   app: jenkins
+spec:
+ selector:
+   app: jenkins
+ type: NodePort
+ ports:
+ - name: web
+   port: 31000
+   targetPort: web
+   nodePort: 31002
+ - name: agent
+   port: 31001
+   targetPort: agent
