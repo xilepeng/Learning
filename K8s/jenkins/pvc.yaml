@@ -4,13 +4,14 @@ metadata:
   name: opspv
 spec:
   capacity:
-     storage: 20Gi
+    storage: 20Gi
   accessModes:
   - ReadWriteMany
   persistentVolumeReclaimPolicy: Delete
   nfs:
-     server: 192.168.105.5
-     path: /mnt/jenkins
+    server: 192.168.105.5
+    path: /data/k8s
+
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -19,7 +20,7 @@ metadata:
   namespace: kube-ops
 spec:
   accessModes:
-     - ReadWriteMany
+    - ReadWriteMany
   resources:
-     requests:
-        storage: 1Gi
+    requests:
+      storage: 20Gi
