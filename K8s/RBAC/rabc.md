@@ -1,6 +1,6 @@
 
 
-```go
+``` go
 ubuntu@master:~/certs$ openssl genrsa -out hfbpw.key 2048
 Generating RSA private key, 2048 bit long modulus (2 primes)
 ......................+++++
@@ -66,7 +66,7 @@ ubuntu@master:~/useraccount$ kubectl get pods --context=hfbpw-context
 
 
 
-```go
+``` go
 ubuntu@master:~/certs$ mkdir serviceaccount
 ubuntu@master:~/certs$ ls
 hfbpw.crt  hfbpw.csr  hfbpw.key  serviceaccount

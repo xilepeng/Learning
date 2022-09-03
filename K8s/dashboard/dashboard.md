@@ -10,7 +10,7 @@
 
 
 vim recommended.yaml  添加：  type: NodePort
-```go
+``` go
 
 kind: Service
 apiVersion: v1
@@ -32,7 +32,7 @@ spec:
 kubectl apply -f recommended.yaml
 
 
-```go
+``` go
 root@node1:/home/ubuntu/share# kubectl get pods --all-namespaces
 NAMESPACE              NAME                                        READY   STATUS    RESTARTS      AGE
 kube-system            coredns-78fcd69978-hqq4v                    1/1     Running   0             7h12m
@@ -111,7 +111,7 @@ https://192.168.105.6:31447
 
 
 root@node1:~# vim admin-account.yaml
-```go
+``` go
 
 apiVersion: v1
 kind: ServiceAccount
@@ -139,7 +139,7 @@ subjects:
 
 
 
-```go
+``` go
 从 master 拷贝到 node01
 sudo vim /etc/kubernetes/admin.conf
 

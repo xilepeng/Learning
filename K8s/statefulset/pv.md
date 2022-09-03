@@ -1,5 +1,5 @@
 
-```go
+``` go
 ubuntu@master:~$ vim pv-demo.yaml
 ubuntu@master:~$ kubectl create -f pv-demo.yaml
 persistentvolume/pv01 created

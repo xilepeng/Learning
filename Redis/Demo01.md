@@ -106,7 +106,7 @@ Redis提供的5种数据结构字符串（string）、哈希（hash）、列表�
 
 ## 第3章 Redis客户端的使用
 
-```go
+``` go
 package main
 
 import (
@@ -1075,7 +1075,7 @@ master0:name=mymaster,status=ok,address=127.0.0.1:7000,slaves=2,sentinels=3
 
 **连接 golang 客户端**
 
-Go语言：go-redis客户端对sentinel模式下（非集群cluster）redis-server主从切换的支持
+Go语言： go-redis客户端对sentinel模式下（非集群cluster）redis-server主从切换的支持
 
  通过调用NewFailoverClient函数可以创建一个能支持redis-server主从切换(sentinel模式下)的client, 基本用法如下：
 
@@ -1098,12 +1098,12 @@ sentinel monitor mymaster 127.0.0.1 7000 2
 
 
 
-```go
+``` go
 package main
  
 import (
         "fmt"
-        "github.com/go-redis/redis"
+        "github.com/ go-redis/redis"
         "time"
 )
  
@@ -1128,14 +1128,14 @@ func main() {
 **实验1：redis节点主从切换 **
 故障转移
 
-运行redissentinel.go，并在执行过程中，shutdown redis主节点127.0.0.1:7000，可以看到在reply等于132和133之间，客户端监测到了主从切换，并重新连接到新的主节点，这段时间大致等于sentinel配置down-after-milliseconds的时长。
+运行redissentinel. go，并在执行过程中，shutdown redis主节点127.0.0.1:7000，可以看到在reply等于132和133之间，客户端监测到了主从切换，并重新连接到新的主节点，这段时间大致等于sentinel配置down-after-milliseconds的时长。
 
 
 
-```go
-redis: 2021/10/18 09:15:53 sentinel.go:379: sentinel: discovered new sentinel="c15d5f8249d4c33a860cf6e2c80ff3aa680a1e59" for master="mymaster"
-redis: 2021/10/18 09:15:53 sentinel.go:379: sentinel: discovered new sentinel="2f89646d5118ede604c27ba065b97b8821613837" for master="mymaster"
-redis: 2021/10/18 09:15:53 sentinel.go:332: sentinel: new master="mymaster" addr="127.0.0.1:7000"
+``` go
+redis: 2021/10/18 09:15:53 sentinel. go:379: sentinel: discovered new sentinel="c15d5f8249d4c33a860cf6e2c80ff3aa680a1e59" for master="mymaster"
+redis: 2021/10/18 09:15:53 sentinel. go:379: sentinel: discovered new sentinel="2f89646d5118ede604c27ba065b97b8821613837" for master="mymaster"
+redis: 2021/10/18 09:15:53 sentinel. go:332: sentinel: new master="mymaster" addr="127.0.0.1:7000"
 reply=109 err=<nil>
 reply=110 err=<nil>
 reply=130 err=<nil>
@@ -1145,7 +1145,7 @@ reply=0 err=EOF
 reply=0 err=dial tcp 127.0.0.1:7000: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:7000: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:7000: connect: connection refused
-redis: 2021/10/18 09:16:53 sentinel.go:332: sentinel: new master="mymaster" addr="127.0.0.1:7002"
+redis: 2021/10/18 09:16:53 sentinel. go:332: sentinel: new master="mymaster" addr="127.0.0.1:7002"
 reply=133 err=<nil>
 
 ```
@@ -1168,7 +1168,7 @@ reply=133 err=<nil>
 
 ```sql
 
-redis: 2021/10/18 11:37:14 pubsub.go:159: redis: discarding bad PubSub connection: EOF
+redis: 2021/10/18 11:37:14 pubsub. go:159: redis: discarding bad PubSub connection: EOF
 
 ```
 
@@ -1191,17 +1191,17 @@ reply=328 err=<nil>
 reply=329 err=<nil>
 reply=330 err=<nil>
 reply=0 err=EOF
-redis: 2020/10/30 22:08:19 sentinel.go:313: sentinel: GetMasterAddrByName name="mymaster" failed: EOF
-redis: 2020/10/30 22:08:19 sentinel.go:313: sentinel: GetMasterAddrByName name="mymaster" failed: dial tcp 127.0.0.1:26379: connect: connection refused
-redis: 2020/10/30 22:08:19 sentinel.go:287: sentinel: GetMasterAddrByName master="mymaster" failed: dial tcp 127.0.0.1:26379: connect: connection refused
-redis: 2020/10/30 22:08:19 sentinel.go:379: sentinel: discovered new sentinel="9a023490096f5f87db1c7f445d883f56e75275db" for master="mymaster"
+redis: 2020/10/30 22:08:19 sentinel. go:313: sentinel: GetMasterAddrByName name="mymaster" failed: EOF
+redis: 2020/10/30 22:08:19 sentinel. go:313: sentinel: GetMasterAddrByName name="mymaster" failed: dial tcp 127.0.0.1:26379: connect: connection refused
+redis: 2020/10/30 22:08:19 sentinel. go:287: sentinel: GetMasterAddrByName master="mymaster" failed: dial tcp 127.0.0.1:26379: connect: connection refused
+redis: 2020/10/30 22:08:19 sentinel. go:379: sentinel: discovered new sentinel="9a023490096f5f87db1c7f445d883f56e75275db" for master="mymaster"
 reply=0 err=dial tcp 127.0.0.1:6388: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:6388: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:6388: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:6388: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:6388: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:6388: connect: connection refused
-redis: 2020/10/30 22:08:24 sentinel.go:332: sentinel: new master="mymaster" addr="127.0.0.1:6398"
+redis: 2020/10/30 22:08:24 sentinel. go:332: sentinel: new master="mymaster" addr="127.0.0.1:6398"
 reply=331 err=<nil>
 reply=332 err=<nil>
 reply=333 err=<nil>
@@ -1231,7 +1231,7 @@ reply=0 err=dial tcp 127.0.0.1:6398: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:6398: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:6398: connect: connection refused
 reply=0 err=dial tcp 127.0.0.1:6398: connect: connection refused
-redis: 2020/10/30 22:43:19 sentinel.go:332: sentinel: new master="mymaster" addr="127.0.0.1:6378"
+redis: 2020/10/30 22:43:19 sentinel. go:332: sentinel: new master="mymaster" addr="127.0.0.1:6378"
 reply=532 err=<nil>
 reply=533 err=<nil>
 reply=534 err=<nil>
@@ -1244,7 +1244,7 @@ reply=537 err=<nil>
 
 小结：
 
-通过上面的实验证明，**go-redis 的 NewFailoverClient 对 sentinel 模式下的 redis 应用是稳定可靠的**。
+通过上面的实验证明，** go-redis 的 NewFailoverClient 对 sentinel 模式下的 redis 应用是稳定可靠的**。
 
 
 

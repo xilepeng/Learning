@@ -1,6 +1,6 @@
 
 
-```go
+``` go
 ubuntu@master:~$ kubectl apply -f deploy-demo.yaml
 deployment.apps/deployment-demo created
 

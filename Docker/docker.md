@@ -6,7 +6,7 @@
 
 
 
-```shell
+``` s
 # 使用官方安装脚本自动安装
 ubuntu@master:~$ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 
@@ -30,7 +30,7 @@ ubuntu@master:~$ sudo systemctl restart docker
 # 重启 iTerm2
 ubuntu@node1:~$ exit
 logout
-➜  ~ multipass shell node1
+➜  ~ multipass  s node1
 
 ubuntu@master:~$ docker info
 
@@ -85,8 +85,8 @@ multipass find
 multipass launch -n ubuntu-lts -c 4 -m 4G -d 40G
  
 3.进入虚拟机
-语法：multipass shell 虚拟机名称
-multipass shell ubuntu-lts
+语法：multipass  s 虚拟机名称
+multipass  s ubuntu-lts
  
 4.直接使用虚拟机
 语法：multipass exec 虚拟机名称  --命令
@@ -177,11 +177,11 @@ Mounts:         /Users/x/Shared => /home/ubuntu/Shared
                     UID map: 501:default
                     GID map: 20:default
 
-18. multipass shell
+18. multipass  s
 进入一个与宿主机隔离的 Linux 容器！
 multipass 会自动创建并运行一个名为 Primary 的容器（如果还没有创建或运行的话），这个容器也会自动挂载宿主机的 Home 目录，就是这么省心省力。
 
-➜  ~ multipass shell
+➜  ~ multipass  s
 Launched: primary
 Mounted '/Users/x' into 'primary:Home'
 Welcome to Ubuntu 20.04.3 LTS (GNU/Linux 5.4.0-89-generic x86_64)
@@ -201,7 +201,7 @@ PING 192.168.105.4 (192.168.105.4): 56 data bytes
 64 bytes from 192.168.105.4: icmp_seq=0 ttl=64 time=41.990 ms
 64 bytes from 192.168.105.4: icmp_seq=1 ttl=64 time=0.866 ms
 
-multipass shell x
+multipass  s x
 
 ```
 
@@ -219,7 +219,7 @@ multipass shell x
 
 [Download Multipass for MacOS](https://multipass.run/download/macos)
 
-```shell
+``` s
 brew install multipass
 ```
 
@@ -270,7 +270,7 @@ multipass purge
 
 **安装完成，查看版本：**
 
-```go
+``` go
 ➜  ~ multipass version
 multipass  1.7.2+mac
 multipassd 1.7.2+mac
@@ -279,7 +279,7 @@ multipassd 1.7.2+mac
 
 **创建 Ubuntu 虚拟机**
 
-```go
+``` go
 ➜  ~ multipass launch -n x -c 4 -m 4G -d 40G
 Launched: x
 ```
@@ -355,14 +355,14 @@ redis     Redis is an open source key-value store that…   10055     [OK]
 
 
 **Mac 安装 Docker**
-```shell
+``` s
 brew install --cask --appdir=/Applications docker
 
 ```
 
 
 **snap 安装docker无法使用 swarm**
-```shell
+``` s
 # 无法使用 swarm: mkdir /var/lib/docker: read-only file system
 ubuntu@master:~$ sudo snap install docker
 ubuntu@master:~$ sudo vim /var/snap/docker/1125/config/daemon.json
@@ -382,7 +382,7 @@ ubuntu@master:~$ sudo snap start docker
 
 
 
-```shell
+``` s
 ➜  ~ multipass list
 Name                    State             IPv4             Image
 master                  Running           192.168.105.5    Ubuntu 20.04 LTS
@@ -427,7 +427,7 @@ ubuntu@node2:~$ sudo vim /etc/hosts
 ```
 
 
-```go
+``` go
 
 # 关闭防火墙
 systemctl stop firewalld
@@ -492,7 +492,7 @@ ubuntu@master:~$ sudo apt-get update
 
 MicroK8s是一款适用于Linux、Windows和macOS的轻量级零操作Kubernetes。单个命令将安装所有上游Kubernetes服务及其依赖项。通过支持x86和ARM64，MicroK8从本地工作站运行到边缘和物联网设备。
 
-```shell
+``` s
 # 在Linux上安装MicroK8s
 ubuntu@master:~$ sudo snap install microk8s --classic
 # 将您的用户添加到microk8s管理组
@@ -610,7 +610,7 @@ Charmed Kubernetes是一种完全自动化的模型驱动的方法，用于从�
 
 **docker swarm**
 
-```shell
+``` s
 ubuntu@master:~$ docker swarm init --advertise-addr=192.168.105.5
 
 Swarm initialized: current node (qkdbdlpsu3ld9r8vwv3ngr4ey) is now a manager.
@@ -731,7 +731,7 @@ no such service: demo
 
 **实战**
 
-```shell
+``` s
 ubuntu@master:~$ sudo systemctl stop docker
 Warning: Stopping docker.service, but it can still be activated by:
   docker.socket
@@ -1066,15 +1066,15 @@ root@fd68d763d455:/#
 
 **从容器内拷贝文件到主机**
 ```bash
-root@625456221cb4:/home# touch x.go
+root@625456221cb4:/home# touch x. go
 root@625456221cb4:/home# ls
-x.go
+x. go
 root@625456221cb4:/home# exit
 exit
 
-➜  demo docker cp 625456221cb4:/home/x.go /Users/X/demo
+➜  demo docker cp 625456221cb4:/home/x. go /Users/X/demo
 ➜  demo ls
-docker-compose.yml mojo.go            x.go
+docker-compose.yml mojo. go            x. go
 ```
 
 
@@ -1082,7 +1082,7 @@ docker-compose.yml mojo.go            x.go
 
 暴露端口3344 `-p 3344:80`
 
-```shell
+``` s
 ➜  / docker pull nginx
 Using default tag: latest
 latest: Pulling from library/nginx
@@ -1135,7 +1135,7 @@ curl: (7) Failed to connect to 0.0.0.0 port 3344: Connection refused
 docker web可视化管理工具
 
 安装portainer 
-```shell
+``` s
 
 docker run -d -p 8088:9000 --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v --privileged=true portainer/portainer
 
@@ -1144,7 +1144,7 @@ docker run -d -p 8088:9000 --restart=always -v /var/run/docker.sock:/var/run/doc
 
 **commit 镜像**
 
-```shell
+``` s
 ➜  ~ docker commit --help
 
 Usage:  docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
@@ -1161,7 +1161,7 @@ Options:
                          commit (default true)
 ```
 
-```shell
+``` s
 
 ```
 
@@ -1179,7 +1179,7 @@ Options:
 
 **双向同步数据**
 好处：只需本地修改、容器内会自动同步
-```shell
+``` s
 docker run it -v 主机目录：容器目录
 
 
@@ -1203,10 +1203,10 @@ root@d84239a1cc5a:/home#
                 "Propagation": "rprivate"
             }
         ],
-root@d84239a1cc5a:/home# touch main.go
+root@d84239a1cc5a:/home# touch main. go
 
 ➜  test ls
-main.go
+main. go
 
 
 
@@ -1217,8 +1217,8 @@ exit
 CONTAINER ID   IMAGE     COMMAND                  CREATED      STATUS       PORTS                               NAMES
 
 
-➜  test vim main.go
-➜  test cat main.go
+➜  test vim main. go
+➜  test cat main. go
 package main
 
 func mian(){
@@ -1229,10 +1229,10 @@ func mian(){
 ➜  ~ docker run -it -v /Users/Shared/test:/home ubuntu /bin/bash
 root@f310a6debc99:/# cd home
 root@f310a6debc99:/home# ls
-main.go
-root@f310a6debc99:/home# bat main.go
+main. go
+root@f310a6debc99:/home# bat main. go
 bash: bat: command not found
-root@f310a6debc99:/home# cat main.go
+root@f310a6debc99:/home# cat main. go
 package main
 
 func mian(){
@@ -1293,7 +1293,7 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
 **匿名卷挂载**
 
-```shell
+``` s
 ➜  ~ docker run -d -P --name nginx01 -v /ect/nginx nginx
 5b6c7c9b76e0ecd138472c6e3c488e4f76722671f4546c8842cbbce48ac4fd2a
 ➜  ~ docker volume ls
@@ -1303,7 +1303,7 @@ local     3a740520a550c70da6f631c9e2c3a591357d9c69798e336a741519cd21dcc842
 
 **具名卷挂载**
 
-```shell
+``` s
 ➜  ~ docker run -d -P --name nginx02 -v juming-nginx:/ect/nginx nginx
 549c7be291dd94965425c2400797404ae02e215e9e069baa20b76b6c06c307fe
 
@@ -1430,7 +1430,7 @@ ubuntu       latest    ba6acccedd29   7 days ago      72.8MB
 
 **启动自己镜像**
 
-```shell
+``` s
 ubuntu@x:~/docker-volume$ docker images
 REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
 x/ubuntu     1.0       220e6a6dea5d   6 minutes ago   72.8MB
@@ -1484,7 +1484,7 @@ ubuntu@x:~/docker-volume$ docker inspect 565a3b003ace
 ```bash
 ubuntu@x:~$ cd /var/lib/docker/volumes/a3f1451a671f9ce8b5be5388e7e068963bc30cebd2c2617472b2d42cff401e3d/_data
 ubuntu@x:/var/lib/docker/volumes/a3f1451a671f9ce8b5be5388e7e068963bc30cebd2c2617472b2d42cff401e3d/_data$ ls
-main.go
+main. go
 ```
 
 
@@ -1678,7 +1678,7 @@ home
 # 不能追加，必须全部替换
 
 ubuntu@x:~/dockerfile$ docker run 765d6aa3b132 -l
-docker: Error response from daemon: OCI runtime create failed: container_linux.go:380: starting container process caused: exec: "-l": executable file not found in $PATH: unknown.
+docker: Error response from daemon: OCI runtime create failed: container_linux. go:380: starting container process caused: exec: "-l": executable file not found in $PATH: unknown.
 
 
 ubuntu@x:~/dockerfile$ docker run 765d6aa3b132 ls -al
@@ -1797,21 +1797,21 @@ latest: digest: sha256:dc71bd31b77150560a90d0b7faaaecc9b37977df22f9c90ecbfe838e4
 
 **实践 gin**
 ```dockerfile
-ubuntu@x:~/go-demo$ go env -w GO111MODULE=on
-ubuntu@x:~/go-demo$ go env -w GOPROXY=https://goproxy.io,direct
+ubuntu@x:~/ go-demo$  go env -w GO111MODULE=on
+ubuntu@x:~/ go-demo$  go env -w GOPROXY=https://goproxy.io,direct
 
-ubuntu@x:~/go-demo$ go mod init go-demo
-go: creating new go.mod: module go-demo
-go: to add module requirements and sums:
-	go mod tidy
-ubuntu@x:~/go-demo$ ls
-Dockerfile  go.mod  main.go
-ubuntu@x:~/go-demo$ go mod tidy
+ubuntu@x:~/ go-demo$  go mod init  go-demo
+ go: creating new  go.mod: module  go-demo
+ go: to add module requirements and sums:
+	 go mod tidy
+ubuntu@x:~/ go-demo$ ls
+Dockerfile   go.mod  main. go
+ubuntu@x:~/ go-demo$  go mod tidy
 
 
-ubuntu@x:~/go-demo$ ls
-Dockerfile  go.mod  go.sum  main.go
-ubuntu@x:~/go-demo$ cat main.go
+ubuntu@x:~/ go-demo$ ls
+Dockerfile   go.mod   go.sum  main. go
+ubuntu@x:~/ go-demo$ cat main. go
 package main
 
 import "github.com/gin-gonic/gin"
@@ -1827,7 +1827,7 @@ func main() {
 }
 
 
-ubuntu@x:~/go-demo$ cat Dockerfile
+ubuntu@x:~/ go-demo$ cat Dockerfile
 FROM golang:1.17.2-alpine AS builder
 MAINTAINER x<lepengxi@gmail.com>
 # 编译工作目录
@@ -1835,11 +1835,11 @@ WORKDIR /app
 # 拷贝本地所有文件到编译工作目录
 COPY . .
 
-# RUN go get -u github.com/gin-gonic/gin
+# RUN  go get -u github.com/gin-gonic/gin
 ENV GOPROXY https://goproxy.cn
 
 # 编译go文件,设置不调用Cgo
-RUN CGO_ENABLED=0 GOOS=linux go build -o server
+RUN CGO_ENABLED=0 GOOS=linux  go build -o server
 
 FROM alpine:latest
 # 二进制文件存放目录
@@ -1853,21 +1853,21 @@ ENTRYPOINT [ "/app/server" ]
 
 
 
-ubuntu@x:~/go-demo$ docker build -t xilepeng/gin-ping .
+ubuntu@x:~/ go-demo$ docker build -t xilepeng/gin-ping .
 
 Successfully built 0d83808031c5
 Successfully tagged xilepeng/gin-ping:latest
 
-ubuntu@x:~/go-demo$ docker images
+ubuntu@x:~/ go-demo$ docker images
 REPOSITORY          TAG             IMAGE ID       CREATED             SIZE
 xilepeng/gin-ping   latest          0d83808031c5   52 seconds ago      14.7MB
 
-ubuntu@x:~/go-demo$ docker run -d xilepeng/gin-ping
+ubuntu@x:~/ go-demo$ docker run -d xilepeng/gin-ping
 f073baba719c8a06d41246f2efc6c581eb202494d5974c8ea5b13ae391e3d01e
-ubuntu@x:~/go-demo$ docker ps
+ubuntu@x:~/ go-demo$ docker ps
 CONTAINER ID   IMAGE               COMMAND         CREATED         STATUS         PORTS      NAMES
 f073baba719c   xilepeng/gin-ping   "/app/server"   5 seconds ago   Up 4 seconds   8080/tcp   trusting_mclaren
-ubuntu@x:~/go-demo$ docker inspect f073baba719c
+ubuntu@x:~/ go-demo$ docker inspect f073baba719c
 
         "NetworkSettings": {
             "Bridge": "",
@@ -1891,7 +1891,7 @@ ubuntu@x:~/go-demo$ docker inspect f073baba719c
             "MacAddress": "02:42:ac:11:00:02",
 
 
-ubuntu@x:~/go-demo$ curl http://172.17.0.2:8080/ping
+ubuntu@x:~/ go-demo$ curl http://172.17.0.2:8080/ping
 {"message":"pong"}
 
 
@@ -1915,7 +1915,7 @@ ubuntu@x:~$ docker rmi -f $(docker images -a)
 
 **Docker 网络**
 
-```shell
+``` s
 ubuntu@x:~$ ip addr
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -1941,7 +1941,7 @@ ubuntu@x:~$ ip addr
 
 **自定义网络**
 
-```shell
+``` s
 ubuntu@x:~$ docker network ls
 NETWORK ID     NAME      DRIVER    SCOPE
 18d7aa9c30f4   bridge    bridge    local
@@ -1956,7 +1956,7 @@ NETWORK ID     NAME      DRIVER    SCOPE
 - none: 不配置网络
 - container: 容器内网络连通（用的少），局限很大
 
-```shell
+``` s
 ubuntu@x:~$ docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynet
 f7fbb7667e3afcb9cfb7cbc2d72e1772872c94f3a626e8f8d44f2d8a974962a4
 ubuntu@x:~$ docker network ls
@@ -1968,7 +1968,7 @@ f7fbb7667e3a   mynet     bridge    local
 
 
 
-```shell
+``` s
 ubuntu@x:~$ docker inspect mynet
 [
     {
@@ -2004,7 +2004,7 @@ ubuntu@x:~$ docker inspect mynet
 
 
 
-```shell
+``` s
 ubuntu@x:~$ docker inspect mynet
 [
     {
@@ -2055,7 +2055,7 @@ ubuntu@x:~$ docker inspect mynet
 
 
 
-```shell
+``` s
 ubuntu@x:~$ docker run -itd --name ubuntu-01 --network mynet ubuntu /bin/bash
 40c30f43fef30554c4f3bcb6448517cee224b18bd589ed2849fc068852f36ece
 ubuntu@x:~$ docker run -itd --name ubuntu-02 --network mynet ubuntu /bin/bash
@@ -2092,7 +2092,7 @@ PING ubuntu-02 (192.168.0.3) 56(84) bytes of data.
 
 **网络连通**
 
-```shell
+``` s
 ubuntu@x:~$ docker network connect --help
 
 Usage:  docker network connect [OPTIONS] NETWORK CONTAINER
@@ -2133,7 +2133,7 @@ ubuntu@x:~$ docker network inspect mynet
 
 **连通之后，就是将 ubuntu 加入 mynet 网络下**
 
-```shell
+``` s
 ubuntu@x:~$ docker exec -it ubuntu-01 ping ubuntu
 PING ubuntu (192.168.0.4) 56(84) bytes of data.
 64 bytes from ubuntu.mynet (192.168.0.4): icmp_seq=1 ttl=64 time=1.74 ms
@@ -2149,7 +2149,7 @@ ping: ubuntu-no: Temporary failure in name resolution
 
 
 
-```shell
+``` s
 ubuntu@x:~$ docker network create redis --subnet 172.38.0.0/16
 67839a9ee88e776b4b921b981bff45791bed321a3d271d6bdce1ba0ac4870477
 ubuntu@x:~$ docker network ls
@@ -2196,7 +2196,7 @@ ubuntu@x:~$ docker network inspect redis
 
 
 
-```shell
+``` s
 for port in $(seq 1 6); \
 do \
 mkdir -p /mydata/redis/node-${port}/conf
@@ -2218,7 +2218,7 @@ done
 
 
 
-```shell
+``` s
 ubuntu@x:~$ sudo passwd root
 New password:
 Retype new password:
@@ -2262,7 +2262,7 @@ root@x:~# sudo passwd -dl root
 
 
 
-```shell
+``` s
 docker run -p 6371:6379 -p 16371:16379 --name redis-1 \
 -v /mydata/redis/node-1/data:/data \
 -v /mydata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf \
@@ -2443,7 +2443,7 @@ not connected>
 
 **微服务打包docker镜像**
 
-```shell
+``` s
 $ docker build -t memory .
 
 Successfully built 915f17114664
@@ -2471,7 +2471,7 @@ ubuntu@x:~$ curl localhost:49156/api/account
 
 Ubuntu 20.04.3 LTS 安装 Docker Compose
 
-```shell
+``` s
 ubuntu@x:~$ sudo curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current

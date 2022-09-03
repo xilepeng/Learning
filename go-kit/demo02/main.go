@@ -10,7 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	httptranspsrt "github.com/go-kit/kit/transport/http"
+	httptranspsrt "github.com/ go-kit/kit/transport/http"
 	mymux "github.com/gorilla/mux"
 )
 
@@ -35,7 +35,7 @@ func main() {
 
 	errChan := make(chan error)
 
-	go func(){
+	 go func(){
 		util.RegService()//注册服务
 		err := http.ListenAndServe(":8080", r)
 		if err != nil {
@@ -44,7 +44,7 @@ func main() {
 		}
 	} ()
 
-	go func() {
+	 go func() {
 		sigChan := make(chan os.Signal)
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		errChan<-fmt.Errorf("%s", <-sigChan)

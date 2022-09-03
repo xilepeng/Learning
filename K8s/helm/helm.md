@@ -5,9 +5,6 @@
 ➜  ~ brew install minikube
 
 
-
-
-
 ➜  ~ minikube start
 😄  Darwin 12.5.1 上的 minikube v1.26.1
 🆕  Kubernetes 1.24.3 is now available. If you would like to upgrade, specify: --kubernetes-version=v1.24.3
@@ -86,7 +83,7 @@ stable	http://mirror.azure.cn/kubernetes/charts/
 
 
 
-➜  ~ minikube start --kubernetes-version=v1.24.3
+➜  ~ minikube start --kubernetes-version=v1.22.3
 
 ```
 
@@ -155,6 +152,7 @@ db  	default  	1       	2022-09-02 18:23:45.638568 +0800 CST	deployed	mysql-1.6.
 ➜  ~ kubectl get pods
 NAME                        READY   STATUS    RESTARTS       AGE
 db-mysql-7f4fdddfd5-qfnnt   1/1     Running   2 (107s ago)   58m
+
 
 
 

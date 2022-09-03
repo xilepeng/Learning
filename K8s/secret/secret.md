@@ -1,6 +1,6 @@
 
 
-```go
+``` go
 ubuntu@master:~$ echo -n "admin" | base64
 YWRtaW4=
 ubuntu@master:~$ echo -n "admin321" | base64

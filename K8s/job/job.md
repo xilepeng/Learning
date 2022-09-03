@@ -1,6 +1,6 @@
 
 
-```go
+``` go
 ubuntu@master:~$ vim job-demo.yaml
 
 ubuntu@master:~$ kubectl create -f job-demo.yaml
@@ -67,7 +67,7 @@ ubuntu@master:~$ kubectl logs job-demo--1-6lgx5
 
 
 
-```go
+``` go
 ubuntu@master:~$ vim cronjob.yaml
 ubuntu@master:~$ kubectl apply -f cronjob.yaml
 cronjob.batch/cronjob-demo configured

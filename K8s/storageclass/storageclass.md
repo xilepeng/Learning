@@ -3,7 +3,7 @@
 [https://github.com/kubernetes-retired/external-storage/tree/master/nfs-client](https://github.com/kubernetes-retired/external-storage/tree/master/nfs-client)
 
 
-```go
+``` go
 ubuntu@master:~$ mkdir storageclass
 ubuntu@master:~$ cd storageclass/
 ubuntu@master:~/storageclass$ vim rbac.yaml

@@ -2,7 +2,7 @@
 
 ## 配置文件
 
-```go
+``` go
 ubuntu@node1:~$ systemctl status kubelet
 ● kubelet.service - kubelet: The Kubernetes Node Agent
      Loaded: loaded (/lib/systemd/system/kubelet.service; enabled; vendor preset: enabled)

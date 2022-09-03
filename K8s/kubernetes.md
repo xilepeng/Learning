@@ -4,7 +4,7 @@
 
 **使用multipass搭建k8s多节点集群和Dashboard**
 
-```shell
+``` s
 multipass launch -n master -c 1 -m 3G -d 20G
 multipass launch -n node1 -c 1 -m 3G -d 20G
 multipass launch -n node2 -c 1 -m 3G -d 20G
@@ -72,7 +72,7 @@ ubuntu@master:~$ sudo apt-get update && sudo apt-get upgrade -y
 
 
 
-```shell
+``` s
 # 使用官方安装脚本自动安装
 ubuntu@master:~$ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 
@@ -96,7 +96,7 @@ ubuntu@master:~$ sudo systemctl restart docker
 # 重启 iTerm2
 ubuntu@node1:~$ exit
 logout
-➜  ~ multipass shell node1
+➜  ~ multipass  s node1
 
 ubuntu@master:~$ docker info
 
@@ -118,7 +118,7 @@ Docker Compose version v2.0.1
 
 ```
 
-```shell
+``` s
 sudo apt-get update && sudo apt-get upgrade -y
 
 
@@ -127,7 +127,7 @@ sudo apt-get dist-upgrade -y
 
 
 **root设置**
-```shell
+``` s
 ubuntu@master:~$ sudo passwd root
 ubuntu@master:~$ sudo passwd -dl root
 
@@ -148,7 +148,7 @@ ubuntu@master:~$
 
 **ubuntu 安装 microk8s**
 
-```shell
+``` s
 
 ubuntu@master:~$ sudo snap install microk8s --classic
 microk8s (1.22/stable) v1.22.2 from Canonical✓ installed
@@ -261,7 +261,7 @@ dashboard-metrics-scraper-58d4977855-9jj7f   1/1     Running            0       
 
 
 
-```shell
+``` s
 ubuntu@master:~$  kubectl describe pods metrics-server -n kube-system
 Name:                 metrics-server-85df567dd8-n725n
 Namespace:            kube-system
@@ -346,7 +346,7 @@ Events:
 
 
 
-```shell
+``` s
 
 kubectl set image -n kube-system deployment/metrics-server metrics-server=registry.aliyuncs.com/google_containers/metrics-server:v0.5.0
 
@@ -491,7 +491,7 @@ node2    Ready    <none>   27m     v1.22.2-3+9ad9ee77396805
 
 
 
-```shell
+``` s
 ubuntu@master:~$ microk8s kubectl get no
 NAME     STATUS   ROLES    AGE    VERSION
 master   Ready    <none>   87m    v1.22.2-3+9ad9ee77396805
@@ -502,7 +502,7 @@ Checking if Dashboard is running.
 Dashboard will be available at https://127.0.0.1:10443
 Use the following token to login:
 eyJhbGciOiJSUzI1NiIsImtpZCI6ImRYdzJ2VHN4VXgxNElNXzNhSUYzRERMVVRpMGI2Z3hNdkVyaHpYdnJfQWcifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLW44cGs5Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIzZjE1Nzg1OS0wYTA4LTQ1MTQtOWNlMi1kNTdkZmY3MTRmODciLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.Vpd5VdWJcVcAlUJE9Pbk65EZ0YFYfBiSZulReFzRR22S_j8x1NO6FVjg387xhT8g_r8FI2TKo4aX-2DxoxqBd-qm0vgD2awlxFLJ6sKEIcpa0URS_E0C2UhtbZGrTMO1DIwgAmAEPSM3rorv8f9EM1QjBiKKIDjXyPulcJ5m8cxevDGHQa8njucEqAn_3LYXwewGOSAwdF7LTnQvxdRFf8f8LF5uS8njxjJtorNX5VPo1CcyOd-h1PZZhP6uw7bfOZ7IUhrUb0wxpLngztEDuAQmSSQJEz7zfOvP561vMopenqlTas9ZFB9kEPZzetdJyPJdXdPa7fOnjNToYqvTgA
-E1101 23:58:41.848277   74122 portforward.go:385] error copying from local connection to remote stream: read tcp4 192.168.105.5:10443->192.168.105.1:63703: read: connection reset by peer
+E1101 23:58:41.848277   74122 portforward. go:385] error copying from local connection to remote stream: read tcp4 192.168.105.5:10443->192.168.105.1:63703: read: connection reset by peer
 
 
 
@@ -523,7 +523,7 @@ https://192.168.105.5:10443/
 
 **nginx服务示例**
 
-```shell
+``` s
 
 ubuntu@master:~$ vim pod_nginx.yml
 
@@ -701,7 +701,7 @@ spec:
 
 名称空间用来隔离资源
 
-```shell
+``` s
 ubuntu@master:~$ kubectl get ns
 NAME              STATUS   AGE
 kube-system       Active   18h
@@ -745,7 +745,7 @@ namespace "hello" deleted
 
 运行中的一组容器，Pod是kubernetes中应用的最小单位.
 
-```shell
+``` s
 
 ubuntu@master:~$ kubectl run mynginx --image=nginx
 pod/mynginx created
@@ -898,7 +898,7 @@ pod "myapp" deleted
 
 控制Pod，使Pod拥有多副本，自愈，扩缩容等能力
 
-```shell
+``` s
 ubuntu@master:~$ kubectl create deployment mynginx --image=nginx
 deployment.apps/mynginx created
 
@@ -964,7 +964,7 @@ No resources found in default namespace.
 
 **1、多副本**
 
-```shell
+``` s
 ubuntu@master:~$ kubectl create deployment my-dep --image=nginx --replicas=3
 deployment.apps/my-dep created
 ubuntu@master:~$ kubectl get deploy
@@ -989,12 +989,12 @@ my-dep-5b7868d854-fjrnz   1/1     Running   0          2m5s
 
 
 **访问Kubernetes仪表板**
-```shell
+``` s
 microk8s dashboard-proxy
 ```
 
 **2、扩缩容**
-```shell
+``` s
 ubuntu@master:~$ kubectl scale deploy/my-dep --replicas=5 
 
 ubuntu@master:~$ kubectl edit deploy my-dep
@@ -1007,7 +1007,7 @@ ubuntu@master:~$ kubectl edit deploy my-dep
 ● 容器崩溃
 
 
-```shell
+``` s
 
 ➜  ~ multipass stop node1
 
@@ -1048,7 +1048,7 @@ my-dep-5b7868d854-t8mtf   1/1     Running   0          15m   10.1.104.16   node2
 
 **4、滚动更新**
 
-```shell
+``` s
 
 ubuntu@master:~$ kubectl get deploy -oyaml
 
@@ -1083,7 +1083,7 @@ my-dep-6b48cbf4f9-l66rj   0/1     ContainerCreating   0
 
 **5、版本回退**
 
-```shell
+``` s
 ubuntu@master:~$ kubectl rollout history deployment/my-dep
 
 deployment.apps/my-dep
@@ -1116,7 +1116,7 @@ ubuntu@master:~$ kubectl get deploy/my-dep -oyaml|grep image
 
 将一组 Pods 公开为网络服务的抽象方法。
 
-```shell
+``` s
 
 ubuntu@master:~$ kubectl expose deployment my-dep --port=8000 --target-port=80
 service/my-dep exposed
@@ -1169,7 +1169,7 @@ my-dep-5b7868d854-blggv   1/1     Running   0          39m   app=my-dep,pod-temp
 
 **1、ClusterIP**
 
-```shell
+``` s
 
 # 等同于没有--type的
 kubectl expose deployment my-dep --port=8000 --target-port=80 --type=ClusterIP
@@ -1194,7 +1194,7 @@ spec:
 
 **2、NodePort 集群外也可以访问**
 
-```shell
+``` s
 
 ubuntu@master:~$ kubectl get svc
 NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
@@ -1238,7 +1238,7 @@ http://192.168.105.7:30689/
 ```
 
 
-```shell
+``` s
 kubectl expose deployment my-dep --port=8000 --target-port=80 --type=NodePort
 
 apiVersion: v1
@@ -1268,7 +1268,7 @@ NodePort范围在 30000-32767 之间
 
 
 
-```shell
+``` s
 
 ubuntu@master:~$ microk8s enable ingress
 
@@ -1341,7 +1341,7 @@ kubectl set image -n ingress deployment/kube-webhook-certgen kube-webhook-certge
 
 
 
-```shell
+``` s
 
 3. 将镜像推送到Registry
 
@@ -1444,7 +1444,7 @@ microk8s.enable istio registry storage
 
 
 
-```shell
+``` s
 
 ubuntu@master:~$ kubectl create deployment web --image=nginx
 deployment.apps/web created
@@ -1499,7 +1499,7 @@ Thank you for using nginx.
 
 
 
-```shell
+``` s
 ubuntu@master:~$ microk8s helm3 repo add aliyuncs https://apphub.aliyuncs.com
 WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /var/snap/microk8s/2551/credentials/client.config
 "aliyuncs" has been added to your repositories

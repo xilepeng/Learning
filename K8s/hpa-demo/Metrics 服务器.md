@@ -2,7 +2,7 @@
 
 
 ## helm
-```go
+``` go
 删除默认的源
 
 
@@ -31,7 +31,7 @@ helm install stable/redis --generate-name
 
 ## metrics-server
 
-```go
+``` go
 sudo vim /etc/kubernetes/manifests/kube-apiserver.yaml
 
 - --enable-aggregator-routing=true # 新增
@@ -39,7 +39,7 @@ sudo vim /etc/kubernetes/manifests/kube-apiserver.yaml
 
 ```
 
-```go
+``` go
 https://github.com/kubernetes-sigs/metrics-server
 
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
@@ -55,7 +55,7 @@ https://github.com/kubernetes-sigs/metrics-server/releases/download/metrics-serv
 
 vim components.yaml
 
-```go
+``` go
 
 apiVersion: v1
 kind: ServiceAccount
@@ -256,7 +256,7 @@ spec:
 
 
 
-```go
+``` go
 kubectl apply -f components.yaml
 
 root@master:/home/ubuntu# kubectl get pod -n kube-system | grep metrics-server
@@ -334,7 +334,7 @@ kubernetes-dashboard   kubernetes-dashboard-576cb95f94-7lv7g       1/1     Runni
 
 
 
-```go
+``` go
 ubuntu@master:~$ vim hpa-demo.yaml
 ubuntu@master:~$ kubectl create -f hpa-demo.yaml
 deployment.apps/hpa-demo created

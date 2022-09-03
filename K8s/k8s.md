@@ -4,18 +4,18 @@
 
 
 准备虚拟机：
-```go
+``` go
 multipass launch -n master -c 2 -m 4G -d 40G
-multipass shell master
+multipass  s master
 
 multipass launch -n node1 -c 2 -m 4G -d 40G
-multipass shell node1
+multipass  s node1
 
 ```
 
 
 
-```go
+``` go
 
 
 # 在master添加hosts
@@ -80,7 +80,7 @@ sysctl -p /etc/sysctl.d/k8s.conf
 确保 br_netfilter 模块被加载。这一操作可以通过运行 lsmod | grep br_netfilter 来完成。若要显式加载该模块，可执行 sudo modprobe br_netfilter。
 
 为了让你的 Linux 节点上的 iptables 能够正确地查看桥接流量，你需要确保在你的 sysctl 配置中将 net.bridge.bridge-nf-call-iptables 设置为 1。例如：
-```go
+``` go
 
 
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
@@ -96,24 +96,24 @@ sudo sysctl --system
 
 
 1. 更新 apt 包索引并安装使用 Kubernetes apt 仓库所需要的包：
-```go
+``` go
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl
 ```
 
 2. 下载 Google Cloud 公开签名秘钥：
-```go
+``` go
 sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
 ```
 
 3. 添加 Kubernetes apt 仓库：
-```go
+``` go
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 ```
 
 
 4. 更新 apt 包索引，安装 kubelet、kubeadm 和 kubectl，并锁定其版本：
-```go
+``` go
 
 sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
@@ -126,7 +126,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 
 
-```go
+``` go
 
 
 ubuntu@master:~$ docker info
@@ -345,7 +345,7 @@ master   Ready    control-plane,master   102m   v1.22.4
 ```
 
 ## flannel
-```go
+``` go
 https://github.com/flannel-io/flannel
 
 
@@ -362,7 +362,7 @@ kubectl apply -f kube-flannel.yml
 
 
 ## node1 Kubernetes Dashboard
-```go
+``` go
 kubectl apply -f recommended.yaml
 
 vim recommended.yaml
@@ -378,7 +378,7 @@ https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recomme
 ```
 
 ## ## node1 加入集群
-```go
+``` go
 
 kubeadm join 192.168.105.5:6443 --token 8dtoxq.mc8y47svyn1qbs3o \
 	--discovery-token-ca-cert-hash sha256:276f67ebefc068beeb31005935889d6874a36cc26c12fd3663d6d2aea1c15e0d
@@ -394,7 +394,7 @@ Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
 
 ## scheduler   Unhealthy 
 
-```go
+``` go
 root@master:~# kubectl get cs
 Warning: v1 ComponentStatus is deprecated in v1.19+
 NAME                 STATUS      MESSAGE                                                                                       ERROR
@@ -422,7 +422,7 @@ etcd-0               Healthy   {"health":"true","reason":""}
 
 
 
-```go
+``` go
 root@master:~# kubectl get pods --all-namespaces -o wide
 NAMESPACE              NAME                                        READY   STATUS    RESTARTS        AGE     IP              NODE     NOMINATED NODE   READINESS GATES
 kube-system            coredns-78fcd69978-hqq4v                    1/1     Running   0               6h37m   10.244.0.3      master   <none>           <none>
@@ -443,7 +443,7 @@ kubernetes-dashboard   kubernetes-dashboard-576cb95f94-kdts4       1/1     Runni
 
 ## 错误❌解决：
 
-```go
+``` go
 
 [wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
 [kubelet-check] Initial timeout of 40s passed.
@@ -503,7 +503,7 @@ sudo kubeadm init --kubernetes-version=v1.22.4 --pod-network-cidr=10.244.0.0/16 
 
 
 
-```go
+``` go
 Your Kubernetes control-plane has initialized successfully!
 
 To start using your cluster, you need to run the following as a regular user:
@@ -528,7 +528,7 @@ kubeadm join 192.168.105.5:6443 --token aa6qzi.9skp3xnenjvuscwg \
 ```
 
 ## node1
-```go
+``` go
 sudo kubeadm reset
 sudo rm -rf /etc/kubernetes/manifests/*
 sudo rm -rf /var/lib/etcd
@@ -540,7 +540,7 @@ kubeadm join 192.168.105.5:6443 --token aa6qzi.9skp3xnenjvuscwg \
 
 
 ## 在Docker中下载并运行Jenkins （在macOS和Linux上）
-```go
+``` go
 
 docker run \
   -u root \
@@ -559,7 +559,7 @@ docker run \
 
 
 
-```go
+``` go
 root@master:~# kubectl get nodes
 NAME     STATUS   ROLES                  AGE     VERSION
 master   Ready    control-plane,master   6h54m   v1.22.4
@@ -588,7 +588,7 @@ kubernetes-dashboard   kubernetes-dashboard-576cb95f94-kdts4       1/1     Runni
 
 
 vim recommended.yaml  添加：  type: NodePort
-```go
+``` go
 
 kind: Service
 apiVersion: v1
@@ -610,7 +610,7 @@ spec:
 kubectl apply -f recommended.yaml
 
 
-```go
+``` go
 root@node1:/home/ubuntu/share# kubectl get pods --all-namespaces
 NAMESPACE              NAME                                        READY   STATUS    RESTARTS      AGE
 kube-system            coredns-78fcd69978-hqq4v                    1/1     Running   0             7h12m
@@ -689,7 +689,7 @@ https://192.168.105.6:31447
 
 
 root@node1:~# vim admin-account.yaml
-```go
+``` go
 
 apiVersion: v1
 kind: ServiceAccount
@@ -717,7 +717,7 @@ subjects:
 
 
 
-```go
+``` go
 从 master 拷贝到 node01
 sudo vim /etc/kubernetes/admin.conf
 

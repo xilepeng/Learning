@@ -1,6 +1,6 @@
 
 
-```go
+``` go
 滚动升级
 ubuntu@master:~$ kubectl rollout status deployment deployment-demo
 deployment "deployment-demo" successfully rolled out

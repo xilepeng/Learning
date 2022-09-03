@@ -1,5 +1,5 @@
 
-```go
+``` go
 ubuntu@master:~$ vim configmap.yaml
 ubuntu@master:~$ kubectl apply -f configmap.yaml
 configmap/demo1 created

@@ -1,6 +1,6 @@
 
 
-```go
+``` go
 root@master:~/kubeadm# vim nfs-pvc.yaml
 root@master:~/kubeadm# kubectl create -f nfs-pvc.yaml
 persistentvolumeclaim/pvc-nfs created

@@ -1,7 +1,7 @@
 
 
 
-```go
+``` go
 ubuntu@master:~$ vim pod-hook1.yaml
 ubuntu@master:~$ kubectl apply -f pod-hook1.yaml
 pod/hook-demo1 created

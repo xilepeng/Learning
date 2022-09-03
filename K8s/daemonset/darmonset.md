@@ -1,6 +1,6 @@
 
 
-```go
+``` go
 
 kubectl create -f nginx-ds.yaml
 
