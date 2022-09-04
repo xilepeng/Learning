@@ -737,7 +737,7 @@ Warning: Stopping docker.service, but it can still be activated by:
   docker.socket
   
 ubuntu@node1:~$ docker node ls
-Error response from daemon: This node is not a swarm manager. Worker nodes can\'t be used to view or modify cluster state. Please run this command on a manager node or promote the current node to a manager.
+Error response from daemon: This node is not a swarm manager. Worker nodes can not be used to view or modify cluster state. Please run this command on a manager node or promote the current node to a manager.
 
 ubuntu@master:~$ sudo systemctl start docker
 

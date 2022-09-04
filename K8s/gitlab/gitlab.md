@@ -3,6 +3,52 @@
 
 
 
+``` s
+
+sudo docker run --detach \
+  --hostname gitlab.example.com\
+  --publish 8929:8929 --publish 22:22 \
+  --name gitlab \
+  --restart always \
+  --volume /Users/x/gitlab/config:/etc/gitlab \
+  --volume /Users/x/gitlab/logs:/var/log/gitlab \
+  --volume /Users/x/gitlab/data:/var/opt/gitlab \
+  --shm-size 256m \     
+  registry.gitlab.cn/omnibus/gitlab-jh:latest
+  gitlab/gitlab-ce:latest
+
+```
+
+
+``` s
+➜  gitlab mkdir config logs data
+➜  gitlab chmod 777 config logs data
+
+➜  gitlab ll
+total 0
+drwxrwxrwx  2 x  staff    64B  9  4 16:06 config
+drwxrwxrwx  2 x  staff    64B  9  4 16:07 data
+drwxrwxrwx  2 x  staff    64B  9  4 16:08 logs
+
+
+```
+
+
+``` s
+sudo docker run --detach \
+  --hostname localhost \
+  --env GITLAB_OMNIBUS_CONFIG="external_url '127.0.0.1'; gitlab_rails['lfs_enabled'] = true;" \
+  --publish 443:443 --publish 8929:8929 --publish 2224:22 \
+  --name gitlab \
+  --restart always \
+  --volume /Users/x/gitlab/config:/etc/gitlab \
+  --volume /Users/x/gitlab/logs:/var/log/gitlab \
+  --volume /Users/x/gitlab/data:/var/opt/gitlab \
+  --shm-size 256m \
+  registry.gitlab.cn/omnibus/gitlab-jh:latest
+```
+
+
 
 
 
@@ -121,7 +167,7 @@ services:
     hostname: 'gitlab'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://127.0.0.1/:8929'
+        external_url 'http://183.172.240.115:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
     ports:
       - '8929:8929'
@@ -296,19 +342,6 @@ services:
    ⠋ 86646388c934 Downloading [=================================================> ] ...                     303.9s
 
 
-
-
-
-sudo docker run --detach \
-  --hostname gitlab.example.com \
-  --publish 8929:8929 --publish 2224:2224 \
-  --name gitlab \
-  --restart always \
-  --volume $GITLAB_HOME/config:/etc/gitlab \
-  --volume $GITLAB_HOME/logs:/var/log/gitlab \
-  --volume $GITLAB_HOME/data:/var/opt/gitlab \
-  --shm-size 256m \     
-  gitlab/gitlab-ce:latest
 
 
 
