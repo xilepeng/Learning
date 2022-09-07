@@ -1,7 +1,61 @@
 
 
+``` s
+sudo docker run --detach \
+  --hostname localhost \
+  --publish 443:443 --publish 8929:8929 --publish 2224:22 \
+  --name gitlab \
+  --restart always \
+  --volume $GITLAB_HOME/config:/etc/gitlab \
+  --volume $GITLAB_HOME/logs:/var/log/gitlab \
+  --volume $GITLAB_HOME/data:/var/opt/gitlab \
+  --shm-size 256m \
+  registry.gitlab.cn/omnibus/gitlab-jh:latest
+```
 
 
+
+
+``` yml
+
+# docker-compose.yml
+version: '3.7'
+services:
+  gitlab:
+    image: 'registry.gitlab.cn/omnibus/gitlab-jh:latest'
+    restart: always
+    hostname: 'localhost'
+    container_name: gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8929'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+    ports:
+      - '8929:8929'
+      - '8443:443'
+      - '2224:2224'
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    networks:
+      - gitlab
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner    
+    restart: always
+    depends_on:
+      - gitlab
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - '$GITLAB_HOME/gitlab-runner:/etc/gitlab-runner'
+    networks:
+      - gitlab
+
+networks:
+  gitlab:
+    name: gitlab-network
+```
 
 
 
@@ -182,7 +236,7 @@ drwxrwxrwx  2 x  staff    64B  9  4 16:08 logs
 sudo docker run --detach \
   --hostname localhost \
   --env GITLAB_OMNIBUS_CONFIG="external_url 'localhost'; gitlab_rails['lfs_enabled'] = true;" \
-  --publish 443:443 --publish 8929:8929 --publish 2229:22 \
+  --publish 443:443 --publish 8929:8929 --publish 2224:22 \
   --name gitlab \
   --restart always \
   --volume $GITLAB_HOME/config:/etc/gitlab \
@@ -285,10 +339,10 @@ services:
   web:
     image: 'registry.gitlab.cn/omnibus/gitlab-jh:latest'
     restart: always
-    hostname: 'gitlab.example.com'
+    hostname: 'localhost'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'https://gitlab.example.com'
+        external_url 'https://localhost'
         # Add any other gitlab.rb configuration here, each on its own line
     ports:
       - '80:80'
@@ -308,10 +362,10 @@ services:
   web:
     image: 'gitlab/gitlab-ce:latest'
     restart: always
-    hostname: 'gitlab'
+    hostname: 'localhost'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://183.172.240.115:8929'
+        external_url 'http://localhost:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
     ports:
       - '8929:8929'
