@@ -29,6 +29,9 @@ func main() {
 		c.String(200, "我是delete请求,删除数据")
 	})
 
-	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
+	err := r.Run()
+	if err != nil {
+		return
+	} // 监听并在 0.0.0.0:8080 上启动服务
 	//r.Run(":8000")
 }
