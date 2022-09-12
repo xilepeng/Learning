@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Article struct {
@@ -33,14 +34,6 @@ func main() {
 			"news":  news,
 		})
 	})
-
-	r.GET("/api", func(c *gin.Context) {
-		c.String(200, "我是一个api接口")
-	})
-	r.GET("/api/userlist", func(c *gin.Context) {
-		c.String(200, "我是一个api接口")
-	})
-
 	// 后台
 	r.GET("/admin", func(c *gin.Context) {
 		//c.String(http.StatusOK, "%v", "你好，gin")
