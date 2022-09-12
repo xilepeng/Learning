@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Article struct {
@@ -13,6 +14,7 @@ type Article struct {
 func main() {
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/**/*")
+	r.Static("/static", "./static")
 	// 前台
 	r.GET("/", func(c *gin.Context) {
 		//c.String(http.StatusOK, "%v", "你好，gin")
@@ -21,7 +23,7 @@ func main() {
 		})
 	})
 
-	r.GET("default/news", func(c *gin.Context) {
+	r.GET("/news", func(c *gin.Context) {
 		//c.String(http.StatusOK, "%v", "你好，gin")
 		news := &Article{
 			Title:   "新闻标题",
