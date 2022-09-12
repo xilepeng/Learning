@@ -13,7 +13,7 @@ type Article struct {
 
 func main() {
 	r := gin.Default()
-	r.LoadHTMLGlob("templates/**/*")
+	r.LoadHTMLGlob("demo03/templates/**/*")
 	r.Static("/static", "./static")
 	// 前台
 	r.GET("/", func(c *gin.Context) {

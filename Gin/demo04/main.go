@@ -20,7 +20,7 @@ func main() {
 	r := gin.Default()
 	// 自定义模板功能,放在路由下，模版前
 	r.SetFuncMap(template.FuncMap{"UnixToTime": UnixToTime})
-	r.LoadHTMLGlob("templates/*")
+	r.LoadHTMLGlob("demo04/templates/*")
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title": "首页标题",
