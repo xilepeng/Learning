@@ -34,18 +34,18 @@ func main() {
 		})
 	})
 
-	r.GET("/api", func(c *gin.Context) {
-		c.String(200, "我是一个api接口")
-	})
-	r.GET("/api/userlist", func(c *gin.Context) {
-		c.String(200, "我是一个api接口")
-	})
-
 	// 后台
 	r.GET("/admin", func(c *gin.Context) {
 		//c.String(http.StatusOK, "%v", "你好，gin")
 		c.HTML(http.StatusOK, "admin/index.html", gin.H{
 			"title": "后台首页",
+		})
+	})
+
+	r.GET("/admin/user", func(c *gin.Context) {
+		//c.String(http.StatusOK, "%v", "你好，gin")
+		c.HTML(http.StatusOK, "admin/index.html", gin.H{
+			"title": "用户列表",
 		})
 	})
 
