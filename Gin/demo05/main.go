@@ -33,13 +33,13 @@ func main() {
 			"page":     page,
 		})
 		//c.String(http.StatusOK, "%v", "你好，gin")
-		//c.HTML(http.StatusOK, "default/index.html", gin.H{
+		//c.HTML(http.StatusOK, "xn/index.html", gin.H{
 		//	"title": "首页",
 		//})
 	})
 	// post 请求传值，获取表单传过来的数据
 	r.GET("/user", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "default/user.html", gin.H{})
+		c.HTML(http.StatusOK, "xn/user.html", gin.H{})
 	})
 	r.POST("/doAddUser", func(c *gin.Context) {
 
@@ -80,7 +80,7 @@ func main() {
 			Title:   "新闻标题",
 			Content: "新闻内容",
 		}
-		c.HTML(http.StatusOK, "default/news.html", gin.H{
+		c.HTML(http.StatusOK, "xn/news.html", gin.H{
 			"title": "新闻页面",
 			"news":  news,
 		})

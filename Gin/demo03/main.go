@@ -17,7 +17,7 @@ func main() {
 	// 前台
 	r.GET("/", func(c *gin.Context) {
 		//c.String(http.StatusOK, "%v", "你好，gin")
-		c.HTML(http.StatusOK, "default/index.html", gin.H{
+		c.HTML(http.StatusOK, "xn/index.html", gin.H{
 			"title": "首页",
 		})
 	})
@@ -28,7 +28,7 @@ func main() {
 			Title:   "新闻标题",
 			Content: "新闻内容",
 		}
-		c.HTML(http.StatusOK, "default/news.html", gin.H{
+		c.HTML(http.StatusOK, "xn/news.html", gin.H{
 			"title": "新闻页面",
 			"news":  news,
 		})
