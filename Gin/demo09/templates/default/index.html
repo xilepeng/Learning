@@ -1,0 +1,24 @@
+{{ define  "default/index.html" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="static/css/base.css">
+</head>
+<body>
+
+{{template "public/page_header.html" .}}
+
+
+<h2>默认首页</h2>
+
+v: 视图
+
+未解决错误：{ { UnixToTime .data } }
+
+
+{{ template "public/page_footer.html" .}}
+</body>
+</html>
+{{end}}
