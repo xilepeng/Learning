@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Gin/demo10/models"
-	"Gin/demo10/routers" // 08 写成07导致包导入错误，无法访问：404 page not found
+	"demo10/models"
+	"demo10/routers"
 	"github.com/gin-gonic/gin"
 	"html/template"
 )

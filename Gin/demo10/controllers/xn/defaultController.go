@@ -1,7 +1,7 @@
 package xn
 
 import (
-	"Gin/demo09/models"
+	"demo10/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )

@@ -3,7 +3,6 @@ package admin
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"path"
 )
 
 type UserController struct {
@@ -24,9 +23,14 @@ func (con UserController) Add(c *gin.Context) {
 func (con UserController) DoUpload(c *gin.Context) {
 	username := c.PostForm("username")
 	face, err := c.FormFile("face")
-	dst := path.Join("Gin/demo10/static/upload")
+	// dst := path.Join("static/upload") // 第一次出错位置，导致没有找到保存路径
+	dst := "./static/upload/" + face.Filename
+	//dst := path.Join("./static/upload/", face.Filename)
 	if err == nil {
-		c.SaveUploadedFile(face, dst)
+		err := c.SaveUploadedFile(face, dst)
+		if err != nil {
+			return
+		}
 	}
 	c.JSON(200, gin.H{
 		"success":  true,

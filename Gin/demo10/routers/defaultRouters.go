@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"Gin/demo10/controllers/xn"
+	"demo10/controllers/xn"
 
 	"github.com/gin-gonic/gin"
 )
