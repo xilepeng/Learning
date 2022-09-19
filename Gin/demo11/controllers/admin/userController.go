@@ -1,11 +1,14 @@
 package admin
 
 import (
+	"demo11/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
 	"path"
+	"strconv"
 )
 
 type UserController struct {
@@ -23,16 +26,61 @@ func (con UserController) Add(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin/useradd.html", gin.H{})
 }
 
-// 1. 单文件上传
+// // 1. 单文件上传
+//
+//	func (con UserController) DoUpload(c *gin.Context) {
+//		username := c.PostForm("username")
+//		face, err := c.FormFile("face")
+//		// dst := path.Join("static/upload") // 第一次出错位置，导致没有找到保存路径
+//		dst := "./static/upload/" + face.Filename
+//		//dst := path.Join("./static/upload/", face.Filename)
+//		if err == nil {
+//			err := c.SaveUploadedFile(face, dst)
+//			if err != nil {
+//				return
+//			}
+//		}
+//		c.JSON(200, gin.H{
+//			"success":  true,
+//			"username": username,
+//			"dst":      dst,
+//		})
+//
+//		c.String(200, "执行上传")
+//	}
+
+// 1. 单文件上传 （按日期存）
 func (con UserController) DoUpload(c *gin.Context) {
 	username := c.PostForm("username")
-
-	face, err := c.FormFile("face")
+	// a.获取上传文件
+	file, err := c.FormFile("face")
 	// dst := path.Join("static/upload") // 第一次出错位置，导致没有找到保存路径
-	dst := "./static/upload/" + face.Filename
+	//dst := "./static/upload/" + file.Filename
 	//dst := path.Join("./static/upload/", face.Filename)
 	if err == nil {
-		err := c.SaveUploadedFile(face, dst)
+		// b.获取后缀名，判断类型是否正确 .jpg .png .gif .jpeg
+		extName := path.Ext(file.Filename)
+		allowExtMap := map[string]bool{".jpg": true, ".png": true, ".gif": true, ".jpeg": true}
+		if _, ok := allowExtMap[extName]; !ok {
+			c.String(200, "上传的文件类型不合法")
+			return
+		}
+		// c.创建文件保存的目录 static/upload/20060102
+		day := models.GetDay()
+		//dir := path.Join("./static/upload/", day)
+		dir := "./static/upload/" + day
+		if err := os.MkdirAll(dir, 0777); err != nil {
+			fmt.Println(err)
+			c.String(200, "MkdirAll 失败")
+			return
+		}
+		// d.生成文件名和文件保存目录
+
+		fileName := strconv.FormatInt(models.GetUnix(), 10) + extName
+
+		// e.执行上传
+		dst := path.Join(dir, fileName)
+		err := c.SaveUploadedFile(file, dst)
 		if err != nil {
 			return
 		}
@@ -40,17 +88,17 @@ func (con UserController) DoUpload(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"success":  true,
 		"username": username,
-		"dst":      dst,
+		// "dst":      dst,
 	})
 
 	c.String(200, "执行上传")
 }
 
+// 2. 多文件上传
 func (con UserController) Edit(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin/useredit.html", gin.H{})
 }
 
-// 2. 多文件上传
 func (con UserController) DoEdit(c *gin.Context) {
 	username := c.PostForm("username")
 

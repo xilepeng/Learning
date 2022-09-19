@@ -1,0 +1,17 @@
+{{ define  "admin/useradd.html" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  <h2>1.演示单文件上传</h2>
+  <form action="/admin/user/doUpload" method="post" enctype="multipart/form-data">
+    用户名：<input type="text" name="username" placeholder="用户名"/><br><br>
+    头 像：<input  type="file" name="face" /> <br><br>
+    <input type="submit" value="提交" /><br><br>
+  </form>
+</body>
+</html>
+{{end}}

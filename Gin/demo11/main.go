@@ -1,8 +1,8 @@
 package main
 
 import (
-	"demo10-2/models"
-	"demo10-2/routers"
+	"demo11/models"
+	"demo11/routers"
 	"html/template"
 
 	"github.com/gin-gonic/gin"
