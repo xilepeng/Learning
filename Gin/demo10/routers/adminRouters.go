@@ -18,9 +18,13 @@ func AdminRoutersInit(r *gin.Engine) {
 		adminRouter.GET("/", admin.IndexController{}.Index)
 
 		adminRouter.GET("/user", admin.UserController{}.Index) // 自定义控制器
+		// 1. 单文件上传
 		adminRouter.GET("/user/add", admin.UserController{}.Add)
 		adminRouter.POST("/user/doUpload", admin.UserController{}.DoUpload)
-
+		// 2. 多文件上传
+		adminRouter.GET("/user/edit", admin.UserController{}.Edit)
+		adminRouter.POST("/user/doEdit", admin.UserController{}.DoEdit)
+		// 文章
 		adminRouter.GET("/article", admin.ArticleController{}.Index)
 		adminRouter.GET("/article/add", admin.ArticleController{}.Add)
 		adminRouter.GET("/article/edit", admin.ArticleController{}.Edit)

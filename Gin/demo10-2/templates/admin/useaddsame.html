@@ -1,0 +1,19 @@
+{{ define  "admin/useraddsame.html" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  <h2>3.演示同名多文件上传</h2>
+  <form action="/admin/user/doUploadSame" method="post" enctype="multipart/form-data" >
+      用户名：<input type="text" name="username" placeholder="用户名"/><br><br>
+      头 像1：<input  type="file" name="face[]" /><br><br>
+      头 像2：<input  type="file" name="face[]" /><br><br>
+      头 像3：<input  type="file" name="face[]" /><br><br>
+      <input type="submit" value="提交" /><br><br>
+  </form>
+</body>
+</html>
+{{end}}
