@@ -69,7 +69,7 @@ func (con UserController) DoUpload(c *gin.Context) {
 		day := models.GetDay()
 		//dir := path.Join("./static/upload/", day)
 		dir := "./static/upload/" + day
-		if err := os.MkdirAll(dir, 0777); err != nil {
+		if err := os.MkdirAll(dir, 0666); err != nil {
 			fmt.Println(err)
 			c.String(200, "MkdirAll 失败")
 			return
@@ -80,8 +80,7 @@ func (con UserController) DoUpload(c *gin.Context) {
 
 		// e.执行上传
 		dst := path.Join(dir, fileName)
-		err := c.SaveUploadedFile(file, dst)
-		if err != nil {
+		if err := c.SaveUploadedFile(file, dst); err != nil {
 			return
 		}
 	}
@@ -91,7 +90,7 @@ func (con UserController) DoUpload(c *gin.Context) {
 		// "dst":      dst,
 	})
 
-	c.String(200, "执行上传")
+	c.String(200, "\n执行上传")
 }
 
 // 2. 多文件上传
@@ -150,7 +149,9 @@ func (con UserController) DoUploadSame(c *gin.Context) {
 		log.Println(file.Filename)
 		dst := path.Join("./static/upload/", file.Filename)
 		// 上传文件至指定目录
-		c.SaveUploadedFile(file, dst)
+		if err := c.SaveUploadedFile(file, dst); err != nil {
+			return
+		}
 	}
 	c.String(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 
@@ -180,6 +181,6 @@ func (con UserController) DoUploadSame(c *gin.Context) {
 		//"dst2":     dst2,
 	})
 
-	c.String(200, "执行上传")
+	c.String(200, "\n执行上传")
 	//c.String(http.StatusOK, "执行修改")
 }

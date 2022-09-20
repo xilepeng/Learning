@@ -1,4 +1,4 @@
-module Gin
+module github.com/xilepeng/Learning/Gin/
 
 go 1.19
 
