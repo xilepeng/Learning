@@ -1481,7 +1481,7 @@ ubuntu@x:~/docker-volume$ docker inspect 565a3b003ace
 ```
 
 **查看数据同步成功**
-```bash
+``` s
 ubuntu@x:~$ cd /var/lib/docker/volumes/a3f1451a671f9ce8b5be5388e7e068963bc30cebd2c2617472b2d42cff401e3d/_data
 ubuntu@x:/var/lib/docker/volumes/a3f1451a671f9ce8b5be5388e7e068963bc30cebd2c2617472b2d42cff401e3d/_data$ ls
 main. go
@@ -1497,7 +1497,7 @@ main. go
 `docker run -it --name docker02 --volumes-from docker01 x/ubuntu`
 
 
-```
+``` s
 ubuntu@x:~$ docker images
 REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
 x/ubuntu     latest    25d88dec65e5   3 seconds ago   72.8MB
@@ -1564,7 +1564,7 @@ docker01  docker03
 
 
 
-```bash
+``` s
 ubuntu@x:~$ docker run -d -p 3306:3306 -v /etc/mysql/conf.d -v /var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --name mysql mysql:latest
 c9cbb8634a619d014ccbcde50c79fb899b7d0404bece3b644de2ebf03aa2a377
 
@@ -1587,7 +1587,7 @@ mysql>
 ## dockerfile
 
 
-```dockerfile
+``` dockerfile
 ubuntu@x:~/dockerfile$ vim mydockerfile
 
 ubuntu@x:~/dockerfile$ cat mydockerfile
@@ -1607,8 +1607,10 @@ CMD echo $MYPATH
 CMD echo "end..."
 CMD /bin/bash
 
+```
 
 
+``` s
 ubuntu@x:~/dockerfile$ docker build -f mydockerfile -t myubuntu:0.1 .
 
 Successfully built bf0b925ea7b9
@@ -1647,13 +1649,15 @@ ba6acccedd29   7 days ago       /bin/sh -c #(nop)  CMD ["bash"]                 
 
 
 
-```dockerfile
+``` dockerfile
 ubuntu@x:~/dockerfile$ vim docker-cmd
 ubuntu@x:~/dockerfile$ cat docker-cmd
 FROM ubuntu
 
 CMD ["ls","-a"]
+```
 
+``` s
 ubuntu@x:~/dockerfile$ docker build -f docker-cmd -t cmd .
 Sending build context to Docker daemon  3.072kB
 Step 1/2 : FROM ubuntu
@@ -1796,7 +1800,7 @@ latest: digest: sha256:dc71bd31b77150560a90d0b7faaaecc9b37977df22f9c90ecbfe838e4
 
 
 **实践 gin**
-```dockerfile
+``` dockerfile
 ubuntu@x:~/ go-demo$  go env -w GO111MODULE=on
 ubuntu@x:~/ go-demo$  go env -w GOPROXY=https://goproxy.io,direct
 

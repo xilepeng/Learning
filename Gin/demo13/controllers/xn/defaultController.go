@@ -1,8 +1,6 @@
 package xn
 
 import (
-	"demo13/models"
-	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +14,7 @@ func (con DefaultController) Index(c *gin.Context) {
 	session.Save() // 设置 session 必须调用
 
 	c.String(200, "我是首页")
-	fmt.Println(models.UnixToTime(1662774111))
+	//fmt.Println(models.UnixToTime(1662774111))
 
 	// 设置 cookie, 实现不同页面数据共享,要放在渲染HTML之前
 	//c.SetCookie("username", "我来防乔丹", 3600, "/", ".hfbpw.com", false, true)

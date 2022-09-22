@@ -1,15 +1,15 @@
 
 1. [简单查询](#简单查询)
-1. [条件查询](#条件查询)
-1. [排序](#排序)
-1. [数据处理函数](#数据处理函数)
-1. [分组函数（多行处理函数）](#分组函数多行处理函数)
-1. [✅ 分组查询 （非常重要）](#-分组查询-非常重要)
+2. [条件查询](#条件查询)
+3. [排序](#排序)
+4. [数据处理函数](#数据处理函数)
+5. [分组函数（多行处理函数）](#分组函数多行处理函数)
+6. [✅ 分组查询 （非常重要）](#-分组查询-非常重要)
 
 
 
 
-```sql
+``` s
 ➜  ~ docker pull mysql:latest
 
 latest: Pulling from library/mysql
@@ -66,7 +66,7 @@ mysql>
 
 
 
-``` sql
+``` s
 docker exec -it mysql bash
 
 mysql -uroot -p123456
@@ -145,7 +145,7 @@ mysql -uroot -p123456
 
 
 
-```SQL
+``` sql
 x@n  docker exec -it mysql bash
 root@f68a3d361cc9:/# mysql -u root -p
 Enter password: 
