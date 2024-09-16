@@ -1,12 +1,17 @@
 
 
+**Mac 安装 Docker**
+``` shell
+brew install --cask --appdir=/Applications docker
+
+```
 
 
 **Ubuntu 安装 Docker**
 
 
 
-``` s
+``` shell
 # 使用官方安装脚本自动安装
 ubuntu@master:~$ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 
@@ -354,11 +359,6 @@ redis     Redis is an open source key-value store that…   10055     [OK]
 ```
 
 
-**Mac 安装 Docker**
-``` s
-brew install --cask --appdir=/Applications docker
-
-```
 
 
 **snap 安装docker无法使用 swarm**

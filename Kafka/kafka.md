@@ -1,0 +1,8 @@
+
+
+``` shell
+brew install kafka
+
+
+
+```
