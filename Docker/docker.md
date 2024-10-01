@@ -10,6 +10,36 @@ brew install --cask --appdir=/Applications docker
 **Ubuntu 安装 Docker**
 
 
+``` shell
+ubuntu@XN:~$ sudo cp /etc/apt/sources.list.d/ubuntu.sources  /etc/apt/sources.list.d/ubuntu.sources.bak
+ubuntu@XN:~$ sudo vim /etc/apt/sources.list.d/ubuntu.source
+
+# 阿里云
+Types: deb
+URIs: http://mirrors.aliyun.com/ubuntu/
+Suites: noble noble-updates noble-security
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gp
+
+# 阿里云
+Types: deb
+URIs: http://mirrors.aliyun.com/ubuntu/
+Suites: noble noble-updates noble-security
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gp
+
+
+
+ubuntu@XN:~$ sudo apt-get upgrade
+
+
+
+
+```
+
+
+
+
 
 ``` shell
 # 使用官方安装脚本自动安装

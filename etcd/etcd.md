@@ -149,7 +149,55 @@ https://discovery.etcd.io/46db8aaec9f3fc018c61ed6cbfb25fc5
 
 
 
+```shell
+➜  etcd git:(main) ✗ etcdctl put /name1 x
+OK
+➜  etcd git:(main) ✗ etcdctl put /name2 y
+OK
+➜  etcd git:(main) ✗ etcdctl put /name3 z
+OK
+➜  etcd git:(main) ✗ etcdctl get /name1
+/name1
+x
+➜  etcd git:(main) ✗ etcdctl get --prefix /name
+/name1
+x
+/name2
+y
+/name3
+z
+➜  etcd git:(main) ✗ etcdctl get --prefix /name --limit 2
+/name1
+x
+/name2
+y
 
+# 按顺序获取
+➜  etcd git:(main) ✗ etcdctl get --from-key /name2
+/name2
+y
+/name3
+z
+key
+value
+name
+x
+username
+x
+
+
+username
+x
+➜  etcd git:(main) ✗ etcdctl put username x2
+OK
+➜  etcd git:(main) ✗ etcdctl get username -w=json
+{"header":{"cluster_id":14841639068965178418,"member_id":10276657743932975437,"revision":9,"raft_term":80},"kvs":[{"key":"dXNlcm5hbWU=","create_revision":5,"mod_revision":9,"version":2,"value":"eDI="}],"count":1}
+➜  etcd git:(main) ✗ etcdctl get username --rev=8
+username
+x
+
+
+```
 
 
 
